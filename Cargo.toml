@@ -1,0 +1,41 @@
+[workspace.package]
+authors = ["Near Inc <hello@nearprotocol.com>"]
+edition = "2021"
+repository = "https://github.com/near/near-account-id"
+license = "MIT OR Apache-2.0"
+members = ["", "fuzz"]
+
+[workspace]
+members = ["", "fuzz"]
+
+[workspace.dependencies]
+arbitrary = { version = "1.2.3", features = ["derive"] }
+bolero = "0.8.0"
+borsh = { version = "0.10.2", features = ["rc"] }
+libfuzzer-sys = { version = "0.4", features = ["arbitrary-derive"] }
+near-account-id = { path = "", features = ["internal_unstable"] }
+serde = { version = "1.0.136", features = ["alloc", "derive", "rc"] }
+serde_json = "1.0.68"
+
+[package]
+name = "near-account-id"
+version = "0.17.0"
+authors.workspace = true
+edition.workspace = true
+description = "This crate contains the Account ID primitive and its validation facilities"
+repository.workspace = true
+license.workspace = true
+publish = true
+
+[features]
+default = ["borsh", "serde"]
+internal_unstable = []
+
+[dependencies]
+arbitrary = { workspace = true, optional = true }
+borsh = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+
+[dev-dependencies]
+bolero.workspace = true
+serde_json.workspace = true
