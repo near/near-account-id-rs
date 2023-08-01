@@ -25,10 +25,10 @@ impl BorshDeserialize for AccountId {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        super::tests::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS},
-        *,
-    };
+    use borsh::{BorshDeserialize as _, BorshSerialize as _};
+
+    use crate::test_data::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS};
+    use crate::AccountId;
 
     #[test]
     fn test_is_valid_account_id() {

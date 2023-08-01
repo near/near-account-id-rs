@@ -26,10 +26,8 @@ impl<'de> de::Deserialize<'de> for AccountId {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        super::tests::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS},
-        AccountId,
-    };
+    use crate::test_data::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS};
+    use crate::AccountId;
 
     use serde_json::json;
 
