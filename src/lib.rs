@@ -36,12 +36,15 @@
 mod errors;
 
 mod account_id;
+mod account_id_ref;
 #[cfg(feature = "borsh")]
 mod borsh;
 #[cfg(feature = "serde")]
 mod serde;
 #[cfg(test)]
 mod test_data;
+mod validation;
 
 pub use account_id::AccountId;
+pub use account_id_ref::AccountIdRef;
 pub use errors::{ParseAccountError, ParseErrorKind};

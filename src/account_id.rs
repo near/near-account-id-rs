@@ -1,6 +1,6 @@
 use std::{fmt, str::FromStr};
 
-use crate::{ParseAccountError, ParseErrorKind};
+use crate::{AccountIdRef, ParseAccountError};
 
 /// NEAR Account Identifier.
 ///
@@ -24,9 +24,9 @@ pub struct AccountId(pub(crate) Box<str>);
 
 impl AccountId {
     /// Shortest valid length for a NEAR Account ID.
-    pub const MIN_LEN: usize = 2;
+    pub const MIN_LEN: usize = crate::validation::MIN_LEN;
     /// Longest valid length for a NEAR Account ID.
-    pub const MAX_LEN: usize = 64;
+    pub const MAX_LEN: usize = crate::validation::MAX_LEN;
 
     /// Returns a string slice of the entire Account ID.
     ///
@@ -191,56 +191,7 @@ impl AccountId {
     /// );
     /// ```
     pub fn validate(account_id: &str) -> Result<(), ParseAccountError> {
-        if account_id.len() < AccountId::MIN_LEN {
-            Err(ParseAccountError {
-                kind: ParseErrorKind::TooShort,
-                char: None,
-            })
-        } else if account_id.len() > AccountId::MAX_LEN {
-            Err(ParseAccountError {
-                kind: ParseErrorKind::TooLong,
-                char: None,
-            })
-        } else {
-            // Adapted from https://github.com/near/near-sdk-rs/blob/fd7d4f82d0dfd15f824a1cf110e552e940ea9073/near-sdk/src/environment/env.rs#L819
-
-            // NOTE: We don't want to use Regex here, because it requires extra time to compile it.
-            // The valid account ID regex is /^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/
-            // Instead the implementation is based on the previous character checks.
-
-            // We can safely assume that last char was a separator.
-            let mut last_char_is_separator = true;
-
-            let mut this = None;
-            for (i, c) in account_id.chars().enumerate() {
-                this.replace((i, c));
-                let current_char_is_separator = match c {
-                    'a'..='z' | '0'..='9' => false,
-                    '-' | '_' | '.' => true,
-                    _ => {
-                        return Err(ParseAccountError {
-                            kind: ParseErrorKind::InvalidChar,
-                            char: this,
-                        });
-                    }
-                };
-                if current_char_is_separator && last_char_is_separator {
-                    return Err(ParseAccountError {
-                        kind: ParseErrorKind::RedundantSeparator,
-                        char: this,
-                    });
-                }
-                last_char_is_separator = current_char_is_separator;
-            }
-
-            if last_char_is_separator {
-                return Err(ParseAccountError {
-                    kind: ParseErrorKind::RedundantSeparator,
-                    char: this,
-                });
-            }
-            Ok(())
-        }
+        crate::validation::validate(account_id)
     }
 
     /// Creates an `AccountId` without any validation checks.
@@ -290,6 +241,12 @@ impl AsRef<str> for AccountId {
 impl std::borrow::Borrow<str> for AccountId {
     fn borrow(&self) -> &str {
         self
+    }
+}
+
+impl std::borrow::Borrow<AccountIdRef> for AccountId {
+    fn borrow(&self) -> &AccountIdRef {
+        AccountIdRef::new_unchecked(self)
     }
 }
 
@@ -370,28 +327,9 @@ impl<'a> arbitrary::Arbitrary<'a> for AccountId {
 
 #[cfg(test)]
 mod tests {
+    use crate::ParseErrorKind;
+
     use super::*;
-
-    use crate::test_data::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS};
-
-    #[test]
-    fn test_is_valid_account_id() {
-        for account_id in OK_ACCOUNT_IDS.iter().cloned() {
-            if let Err(err) = AccountId::validate(account_id) {
-                panic!(
-                    "Valid account id {:?} marked invalid: {}",
-                    account_id,
-                    err.kind()
-                );
-            }
-        }
-
-        for account_id in BAD_ACCOUNT_IDS.iter().cloned() {
-            if AccountId::validate(account_id).is_ok() {
-                panic!("Invalid account id {:?} marked valid", account_id);
-            }
-        }
-    }
 
     #[test]
     fn test_err_kind_classification() {
