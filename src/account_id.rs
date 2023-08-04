@@ -1,4 +1,8 @@
-use std::{fmt, str::FromStr};
+use std::{
+    fmt,
+    ops::{Deref, DerefMut},
+    str::FromStr,
+};
 
 use crate::{AccountIdRef, ParseAccountError};
 
@@ -28,110 +32,30 @@ impl AccountId {
     /// Longest valid length for a NEAR Account ID.
     pub const MAX_LEN: usize = crate::validation::MAX_LEN;
 
-    /// Returns a string slice of the entire Account ID.
+    /// Creates an `AccountId` without any validation checks.
+    ///
+    /// Please note that this is restrictively for internal use only. Plus, being behind a feature flag,
+    /// this could be removed later in the future.
+    ///
+    /// ## Safety
+    ///
+    /// Since this skips validation and constructs an `AccountId` regardless,
+    /// the caller bears the responsibility of ensuring that the Account ID is valid.
+    /// You can use the [`AccountId::validate`] function sometime after its creation but before it's use.
     ///
     /// ## Examples
     ///
     /// ```
     /// use near_account_id::AccountId;
     ///
-    /// let carol: AccountId = "carol.near".parse().unwrap();
-    /// assert_eq!("carol.near", carol.as_str());
+    /// let alice = AccountId::new_unvalidated("alice.near".to_string());
+    /// assert!(AccountId::validate(alice.as_str()).is_ok());
     /// ```
-    pub fn as_str(&self) -> &str {
-        self
-    }
-
-    /// Returns `true` if the `AccountId` is a top-level NEAR Account ID.
-    ///
-    /// See [Top-level Accounts](https://docs.near.org/docs/concepts/account#top-level-accounts).
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// use near_account_id::AccountId;
-    ///
-    /// let near_tla: AccountId = "near".parse().unwrap();
-    /// assert!(near_tla.is_top_level());
-    ///
-    /// // "alice.near" is a sub account of "near" account
-    /// let alice: AccountId = "alice.near".parse().unwrap();
-    /// assert!(!alice.is_top_level());
-    /// ```
-    pub fn is_top_level(&self) -> bool {
-        !self.is_system() && !self.contains('.')
-    }
-
-    /// Returns `true` if the `AccountId` is a direct sub-account of the provided parent account.
-    ///
-    /// See [Subaccounts](https://docs.near.org/docs/concepts/account#subaccounts).
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// use near_account_id::AccountId;
-    ///
-    /// let near_tla: AccountId = "near".parse().unwrap();
-    /// assert!(near_tla.is_top_level());
-    ///
-    /// let alice: AccountId = "alice.near".parse().unwrap();
-    /// assert!(alice.is_sub_account_of(&near_tla));
-    ///
-    /// let alice_app: AccountId = "app.alice.near".parse().unwrap();
-    ///
-    /// // While app.alice.near is a sub account of alice.near,
-    /// // app.alice.near is not a sub account of near
-    /// assert!(alice_app.is_sub_account_of(&alice));
-    /// assert!(!alice_app.is_sub_account_of(&near_tla));
-    /// ```
-    pub fn is_sub_account_of(&self, parent: &AccountId) -> bool {
-        self.strip_suffix(parent.as_str())
-            .and_then(|s| s.strip_suffix('.'))
-            .map_or(false, |s| !s.contains('.'))
-    }
-
-    /// Returns `true` if the `AccountId` is a 64 characters long hexadecimal.
-    ///
-    /// See [Implicit-Accounts](https://docs.near.org/docs/concepts/account#implicit-accounts).
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// use near_account_id::AccountId;
-    ///
-    /// let alice: AccountId = "alice.near".parse().unwrap();
-    /// assert!(!alice.is_implicit());
-    ///
-    /// let rando = "98793cd91a3f870fb126f66285808c7e094afcfc4eda8a970f6648cdf0dbd6de"
-    ///     .parse::<AccountId>()
-    ///     .unwrap();
-    /// assert!(rando.is_implicit());
-    /// ```
-    pub fn is_implicit(&self) -> bool {
-        self.len() == 64
-            && self
-                .as_bytes()
-                .iter()
-                .all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
-    }
-
-    /// Returns `true` if this `AccountId` is the system account.
-    ///
-    /// See [System account](https://nomicon.io/DataStructures/Account.html?highlight=system#system-account).
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// use near_account_id::AccountId;
-    ///
-    /// let alice: AccountId = "alice.near".parse().unwrap();
-    /// assert!(!alice.is_system());
-    ///
-    /// let system: AccountId = "system".parse().unwrap();
-    /// assert!(system.is_system());
-    /// ```
-    pub fn is_system(&self) -> bool {
-        self.as_str() == "system"
+    #[doc(hidden)]
+    #[cfg(feature = "internal_unstable")]
+    #[deprecated = "AccountId construction without validation is illegal since #4440"]
+    pub fn new_unvalidated(account_id: String) -> Self {
+        Self(account_id.into_boxed_str())
     }
 
     /// Validates a string as a well-structured NEAR Account ID.
@@ -193,54 +117,31 @@ impl AccountId {
     pub fn validate(account_id: &str) -> Result<(), ParseAccountError> {
         crate::validation::validate(account_id)
     }
-
-    /// Creates an `AccountId` without any validation checks.
-    ///
-    /// Please note that this is restrictively for internal use only. Plus, being behind a feature flag,
-    /// this could be removed later in the future.
-    ///
-    /// ## Safety
-    ///
-    /// Since this skips validation and constructs an `AccountId` regardless,
-    /// the caller bears the responsibility of ensuring that the Account ID is valid.
-    /// You can use the [`AccountId::validate`] function sometime after its creation but before it's use.
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// use near_account_id::AccountId;
-    ///
-    /// let alice = AccountId::new_unvalidated("alice.near".to_string());
-    /// assert!(AccountId::validate(alice.as_str()).is_ok());
-    ///
-    /// let ƒelicia = AccountId::new_unvalidated("ƒelicia.near".to_string());
-    /// assert!(AccountId::validate(ƒelicia.as_str()).is_err());
-    /// ```
-    #[doc(hidden)]
-    #[cfg(feature = "internal_unstable")]
-    #[deprecated = "AccountId construction without validation is illegal since #4440"]
-    pub fn new_unvalidated(account_id: String) -> Self {
-        Self(account_id.into_boxed_str())
-    }
-}
-
-impl std::ops::Deref for AccountId {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        self.0.as_ref()
-    }
 }
 
 impl AsRef<str> for AccountId {
     fn as_ref(&self) -> &str {
-        self
+        &self.0
+    }
+}
+
+impl Deref for AccountId {
+    type Target = AccountIdRef;
+
+    fn deref(&self) -> &Self::Target {
+        AccountIdRef::new_unchecked(&self.0)
+    }
+}
+
+impl DerefMut for AccountId {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        AccountIdRef::new_unchecked_mut(&mut self.0)
     }
 }
 
 impl std::borrow::Borrow<str> for AccountId {
     fn borrow(&self) -> &str {
-        self
+        &self.0
     }
 }
 
@@ -254,7 +155,7 @@ impl FromStr for AccountId {
     type Err = ParseAccountError;
 
     fn from_str(account_id: &str) -> Result<Self, Self::Err> {
-        Self::validate(account_id)?;
+        crate::validation::validate(account_id)?;
         Ok(Self(account_id.into()))
     }
 }
@@ -263,7 +164,7 @@ impl TryFrom<Box<str>> for AccountId {
     type Error = ParseAccountError;
 
     fn try_from(account_id: Box<str>) -> Result<Self, Self::Error> {
-        Self::validate(&account_id)?;
+        crate::validation::validate(&account_id)?;
         Ok(Self(account_id))
     }
 }
@@ -272,7 +173,7 @@ impl TryFrom<String> for AccountId {
     type Error = ParseAccountError;
 
     fn try_from(account_id: String) -> Result<Self, Self::Error> {
-        Self::validate(&account_id)?;
+        crate::validation::validate(&account_id)?;
         Ok(Self(account_id.into_boxed_str()))
     }
 }
@@ -324,266 +225,10 @@ impl<'a> arbitrary::Arbitrary<'a> for AccountId {
             .map_err(|_| arbitrary::Error::IncorrectFormat)
     }
 }
-
 #[cfg(test)]
 mod tests {
-    use crate::ParseErrorKind;
-
+    #[allow(unused_imports)]
     use super::*;
-
-    #[test]
-    fn test_err_kind_classification() {
-        let id = "ErinMoriarty.near".parse::<AccountId>();
-        debug_assert!(
-            matches!(
-                id,
-                Err(ParseAccountError {
-                    kind: ParseErrorKind::InvalidChar,
-                    char: Some((0, 'E'))
-                })
-            ),
-            "{:?}",
-            id
-        );
-
-        let id = "-KarlUrban.near".parse::<AccountId>();
-        debug_assert!(
-            matches!(
-                id,
-                Err(ParseAccountError {
-                    kind: ParseErrorKind::RedundantSeparator,
-                    char: Some((0, '-'))
-                })
-            ),
-            "{:?}",
-            id
-        );
-
-        let id = "anthonystarr.".parse::<AccountId>();
-        debug_assert!(
-            matches!(
-                id,
-                Err(ParseAccountError {
-                    kind: ParseErrorKind::RedundantSeparator,
-                    char: Some((12, '.'))
-                })
-            ),
-            "{:?}",
-            id
-        );
-
-        let id = "jack__Quaid.near".parse::<AccountId>();
-        debug_assert!(
-            matches!(
-                id,
-                Err(ParseAccountError {
-                    kind: ParseErrorKind::RedundantSeparator,
-                    char: Some((5, '_'))
-                })
-            ),
-            "{:?}",
-            id
-        );
-    }
-
-    #[test]
-    fn test_is_valid_top_level_account_id() {
-        let ok_top_level_account_ids = &[
-            "aa",
-            "a-a",
-            "a-aa",
-            "100",
-            "0o",
-            "com",
-            "near",
-            "bowen",
-            "b-o_w_e-n",
-            "0o0ooo00oo00o",
-            "alex-skidanov",
-            "b-o_w_e-n",
-            "no_lols",
-            "0123456789012345678901234567890123456789012345678901234567890123",
-        ];
-        for account_id in ok_top_level_account_ids {
-            assert!(
-                account_id
-                    .parse::<AccountId>()
-                    .map_or(false, |account_id| account_id.is_top_level()),
-                "Valid top level account id {:?} marked invalid",
-                account_id
-            );
-        }
-
-        let bad_top_level_account_ids = &[
-            "ƒelicia.near", // fancy ƒ!
-            "near.a",
-            "b.owen",
-            "bro.wen",
-            "a.ha",
-            "a.b-a.ra",
-            "some-complex-address@gmail.com",
-            "sub.buy_d1gitz@atata@b0-rg.c_0_m",
-            "over.9000",
-            "google.com",
-            "illia.cheapaccounts.near",
-            "10-4.8-2",
-            "a",
-            "A",
-            "Abc",
-            "-near",
-            "near-",
-            "-near-",
-            "near.",
-            ".near",
-            "near@",
-            "@near",
-            "неар",
-            "@@@@@",
-            "0__0",
-            "0_-_0",
-            "0_-_0",
-            "..",
-            "a..near",
-            "nEar",
-            "_bowen",
-            "hello world",
-            "abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz",
-            "01234567890123456789012345678901234567890123456789012345678901234",
-            // Valid regex and length, but reserved
-            "system",
-        ];
-        for account_id in bad_top_level_account_ids {
-            assert!(
-                !account_id
-                    .parse::<AccountId>()
-                    .map_or(false, |account_id| account_id.is_top_level()),
-                "Invalid top level account id {:?} marked valid",
-                account_id
-            );
-        }
-    }
-
-    #[test]
-    fn test_is_valid_sub_account_id() {
-        let ok_pairs = &[
-            ("test", "a.test"),
-            ("test-me", "abc.test-me"),
-            ("gmail.com", "abc.gmail.com"),
-            ("gmail.com", "abc-lol.gmail.com"),
-            ("gmail.com", "abc_lol.gmail.com"),
-            ("gmail.com", "bro-abc_lol.gmail.com"),
-            ("g0", "0g.g0"),
-            ("1g", "1g.1g"),
-            ("5-3", "4_2.5-3"),
-        ];
-        for (signer_id, sub_account_id) in ok_pairs {
-            assert!(
-                matches!(
-                    (signer_id.parse::<AccountId>(), sub_account_id.parse::<AccountId>()),
-                    (Ok(signer_id), Ok(sub_account_id)) if sub_account_id.is_sub_account_of(&signer_id)
-                ),
-                "Failed to create sub-account {:?} by account {:?}",
-                sub_account_id,
-                signer_id
-            );
-        }
-
-        let bad_pairs = &[
-            ("test", ".test"),
-            ("test", "test"),
-            ("test", "a1.a.test"),
-            ("test", "est"),
-            ("test", ""),
-            ("test", "st"),
-            ("test5", "ббб"),
-            ("test", "a-test"),
-            ("test", "etest"),
-            ("test", "a.etest"),
-            ("test", "retest"),
-            ("test-me", "abc-.test-me"),
-            ("test-me", "Abc.test-me"),
-            ("test-me", "-abc.test-me"),
-            ("test-me", "a--c.test-me"),
-            ("test-me", "a_-c.test-me"),
-            ("test-me", "a-_c.test-me"),
-            ("test-me", "_abc.test-me"),
-            ("test-me", "abc_.test-me"),
-            ("test-me", "..test-me"),
-            ("test-me", "a..test-me"),
-            ("gmail.com", "a.abc@gmail.com"),
-            ("gmail.com", ".abc@gmail.com"),
-            ("gmail.com", ".abc@gmail@com"),
-            ("gmail.com", "abc@gmail@com"),
-            ("test", "a@test"),
-            ("test_me", "abc@test_me"),
-            ("gmail.com", "abc@gmail.com"),
-            ("gmail@com", "abc.gmail@com"),
-            ("gmail.com", "abc-lol@gmail.com"),
-            ("gmail@com", "abc_lol.gmail@com"),
-            ("gmail@com", "bro-abc_lol.gmail@com"),
-            (
-                "gmail.com",
-                "123456789012345678901234567890123456789012345678901234567890@gmail.com",
-            ),
-            (
-                "123456789012345678901234567890123456789012345678901234567890",
-                "1234567890.123456789012345678901234567890123456789012345678901234567890",
-            ),
-            ("aa", "ъ@aa"),
-            ("aa", "ъ.aa"),
-        ];
-        for (signer_id, sub_account_id) in bad_pairs {
-            assert!(
-                !matches!(
-                    (signer_id.parse::<AccountId>(), sub_account_id.parse::<AccountId>()),
-                    (Ok(signer_id), Ok(sub_account_id)) if sub_account_id.is_sub_account_of(&signer_id)
-                ),
-                "Invalid sub-account {:?} created by account {:?}",
-                sub_account_id,
-                signer_id
-            );
-        }
-    }
-
-    #[test]
-    fn test_is_account_id_64_len_hex() {
-        let valid_64_len_hex_account_ids = &[
-            "0000000000000000000000000000000000000000000000000000000000000000",
-            "6174617461746174617461746174617461746174617461746174617461746174",
-            "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-            "20782e20662e64666420482123494b6b6c677573646b6c66676a646b6c736667",
-        ];
-        for valid_account_id in valid_64_len_hex_account_ids {
-            assert!(
-                matches!(
-                    valid_account_id.parse::<AccountId>(),
-                    Ok(account_id) if account_id.is_implicit()
-                ),
-                "Account ID {} should be valid 64-len hex",
-                valid_account_id
-            );
-        }
-
-        let invalid_64_len_hex_account_ids = &[
-            "000000000000000000000000000000000000000000000000000000000000000",
-            "6.74617461746174617461746174617461746174617461746174617461746174",
-            "012-456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-            "fffff_ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-            "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
-            "00000000000000000000000000000000000000000000000000000000000000",
-        ];
-        for invalid_account_id in invalid_64_len_hex_account_ids {
-            assert!(
-                !matches!(
-                    invalid_account_id.parse::<AccountId>(),
-                    Ok(account_id) if account_id.is_implicit()
-                ),
-                "Account ID {} is not an implicit account",
-                invalid_account_id
-            );
-        }
-    }
 
     #[test]
     #[cfg(feature = "arbitrary")]
@@ -606,7 +251,10 @@ mod tests {
             let data = [input.as_bytes(), &[input.len() as _]].concat();
             let mut u = arbitrary::Unstructured::new(&data);
 
-            assert_eq!(u.arbitrary::<AccountId>().as_deref().ok(), expected_output);
+            assert_eq!(
+                u.arbitrary::<AccountId>().map(Into::<String>::into).ok(),
+                expected_output.map(Into::<String>::into)
+            );
         }
     }
 }

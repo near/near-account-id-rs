@@ -13,7 +13,7 @@ impl BorshSerialize for AccountId {
 impl BorshDeserialize for AccountId {
     fn deserialize_reader<R: Read>(rd: &mut R) -> std::io::Result<Self> {
         let account_id = Box::<str>::deserialize_reader(rd)?;
-        Self::validate(&account_id).map_err(|err| {
+        crate::validation::validate(&account_id).map_err(|err| {
             std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 format!("invalid value: \"{}\", {}", account_id, err),
