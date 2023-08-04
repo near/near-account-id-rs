@@ -1,9 +1,6 @@
 use std::borrow::Cow;
 
-use crate::{
-    validation::{self, validate},
-    AccountId, ParseAccountError,
-};
+use crate::{validation::validate, AccountId, ParseAccountError};
 
 /// Account identifier. This is the human readable UTF-8 string which is used internally to index
 /// accounts on the network and their respective state.
@@ -378,7 +375,7 @@ impl<'a> From<&'a AccountIdRef> for Cow<'a, AccountIdRef> {
 #[cfg(feature = "arbitrary")]
 impl<'a> arbitrary::Arbitrary<'a> for &'a AccountIdRef {
     fn size_hint(_depth: usize) -> (usize, Option<usize>) {
-        (validation::MIN_LEN, Some(validation::MAX_LEN))
+        (crate::validation::MIN_LEN, Some(crate::validation::MAX_LEN))
     }
 
     fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {

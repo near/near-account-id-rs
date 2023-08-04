@@ -79,7 +79,10 @@ mod tests {
                 if let Ok(account_id) = serde_json::from_value::<AccountId>(json!(account_id)) {
                     assert_eq!(
                         account_id,
-                        serde_json::from_value(serde_json::to_value(&account_id).unwrap()).unwrap()
+                        serde_json::from_value::<AccountId>(
+                            serde_json::to_value(&account_id).unwrap()
+                        )
+                        .unwrap()
                     );
                 }
             }
