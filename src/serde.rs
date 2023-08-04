@@ -13,6 +13,15 @@ impl ser::Serialize for AccountId {
     }
 }
 
+impl ser::Serialize for AccountIdRef {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ser::Serializer,
+    {
+        self.0.serialize(serializer)
+    }
+}
+
 impl<'de> de::Deserialize<'de> for AccountId {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

@@ -1,3 +1,5 @@
+use crate::AccountIdRef;
+
 use super::AccountId;
 
 use std::io::{Read, Write};
@@ -5,6 +7,12 @@ use std::io::{Read, Write};
 use borsh::{BorshDeserialize, BorshSerialize};
 
 impl BorshSerialize for AccountId {
+    fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        self.0.serialize(writer)
+    }
+}
+
+impl BorshSerialize for AccountIdRef {
     fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
         self.0.serialize(writer)
     }
