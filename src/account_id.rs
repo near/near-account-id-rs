@@ -125,6 +125,12 @@ impl AsRef<str> for AccountId {
     }
 }
 
+impl AsRef<AccountIdRef> for AccountId {
+    fn as_ref(&self) -> &AccountIdRef {
+        self
+    }
+}
+
 impl Deref for AccountId {
     type Target = AccountIdRef;
 
@@ -136,12 +142,6 @@ impl Deref for AccountId {
 impl DerefMut for AccountId {
     fn deref_mut(&mut self) -> &mut Self::Target {
         AccountIdRef::new_unchecked_mut(&mut self.0)
-    }
-}
-
-impl std::borrow::Borrow<str> for AccountId {
-    fn borrow(&self) -> &str {
-        &self.0
     }
 }
 
