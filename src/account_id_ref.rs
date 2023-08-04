@@ -1,6 +1,9 @@
 use std::borrow::Cow;
 
-use crate::{validation::validate, AccountId, ParseAccountError};
+use crate::{
+    validation::{self, validate},
+    AccountId, ParseAccountError,
+};
 
 /// Account identifier. This is the human readable UTF-8 string which is used internally to index
 /// accounts on the network and their respective state.
@@ -366,6 +369,36 @@ impl<'a> From<&'a AccountIdRef> for Cow<'a, AccountIdRef> {
     }
 }
 
+#[cfg(feature = "arbitrary")]
+impl<'a> arbitrary::Arbitrary<'a> for &'a AccountIdRef {
+    fn size_hint(_depth: usize) -> (usize, Option<usize>) {
+        (validation::MIN_LEN, Some(validation::MAX_LEN))
+    }
+
+    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        let mut s = u.arbitrary::<&str>()?;
+
+        loop {
+            match AccountIdRef::new(s) {
+                Ok(account_id) => break Ok(account_id),
+                Err(ParseAccountError {
+                    char: Some((idx, _)),
+                    ..
+                }) => {
+                    s = &s[..idx];
+                    continue;
+                }
+                _ => break Err(arbitrary::Error::IncorrectFormat),
+            }
+        }
+    }
+
+    fn arbitrary_take_rest(u: arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
+        let s = <&str as arbitrary::Arbitrary>::arbitrary_take_rest(u)?;
+        AccountIdRef::new(s).map_err(|_| arbitrary::Error::IncorrectFormat)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::ParseErrorKind;
@@ -619,6 +652,36 @@ mod tests {
                 ),
                 "Account ID {} is not an implicit account",
                 invalid_account_id
+            );
+        }
+    }
+
+    #[test]
+    #[cfg(feature = "arbitrary")]
+    fn test_arbitrary() {
+        let corpus = [
+            ("a|bcd", None),
+            ("ab|cde", Some("ab")),
+            ("a_-b", None),
+            ("ab_-c", Some("ab")),
+            ("a", None),
+            ("miraclx.near", Some("miraclx.near")),
+            (
+                "01234567890123456789012345678901234567890123456789012345678901234",
+                None,
+            ),
+        ];
+
+        for (input, expected_output) in corpus {
+            assert!(input.len() <= u8::MAX as usize);
+            let data = [input.as_bytes(), &[input.len() as _]].concat();
+            let mut u = arbitrary::Unstructured::new(&data);
+
+            assert_eq!(
+                u.arbitrary::<&AccountIdRef>()
+                    .ok()
+                    .map(AsRef::<str>::as_ref),
+                expected_output
             );
         }
     }

@@ -225,6 +225,7 @@ impl<'a> arbitrary::Arbitrary<'a> for AccountId {
             .map_err(|_| arbitrary::Error::IncorrectFormat)
     }
 }
+
 #[cfg(test)]
 mod tests {
     #[allow(unused_imports)]
