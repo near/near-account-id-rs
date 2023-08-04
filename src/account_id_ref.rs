@@ -243,6 +243,12 @@ impl AsRef<str> for AccountIdRef {
     }
 }
 
+impl AsMut<str> for AccountIdRef {
+    fn as_mut(&mut self) -> &mut str {
+        &mut self.0
+    }
+}
+
 impl PartialEq<AccountIdRef> for String {
     fn eq(&self, other: &AccountIdRef) -> bool {
         self == &other.0

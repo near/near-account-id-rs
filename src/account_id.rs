@@ -125,8 +125,20 @@ impl AsRef<str> for AccountId {
     }
 }
 
+impl AsMut<str> for AccountId {
+    fn as_mut(&mut self) -> &mut str {
+        &mut self.0
+    }
+}
+
 impl AsRef<AccountIdRef> for AccountId {
     fn as_ref(&self) -> &AccountIdRef {
+        self
+    }
+}
+
+impl AsMut<AccountIdRef> for AccountId {
+    fn as_mut(&mut self) -> &mut AccountIdRef {
         self
     }
 }
