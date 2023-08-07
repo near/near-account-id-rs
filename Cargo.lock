@@ -60,9 +60,9 @@ dependencies = [
 
 [[package]]
 name = "bolero"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3387d308f66ed222bdbb19c6ba06b1517168c4e45dc64051c5f1b4845db2901c"
+checksum = "f93bb9f89beb66339b30026ed1f7e2112fe2e1229ddd8c56ab02a7c08d6fee39"
 dependencies = [
  "bolero-afl",
  "bolero-engine",
@@ -76,9 +76,9 @@ dependencies = [
 
 [[package]]
 name = "bolero-afl"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "973bc6341b6a865dee93f17b78de4a100551014a527798ff1d7265d3bc0f7d89"
+checksum = "839001753b5219b593314205ed54470c31c8de6a0ebbe4d9b1dac1c656c5b3b0"
 dependencies = [
  "bolero-engine",
  "cc",
@@ -86,9 +86,9 @@ dependencies = [
 
 [[package]]
 name = "bolero-engine"
-version = "0.8.1"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c506a476cea9e95f58c264b343ee279c353d93ceaebe98cbfb16e74bfaee2e2"
+checksum = "1cda3ff998854351eae5125fbb11baf71c109378233423188527c81945d790f9"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -100,9 +100,9 @@ dependencies = [
 
 [[package]]
 name = "bolero-generator"
-version = "0.8.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48d52eca8714d110e581cf17eeacf0d1a0d409d38a9e9ce07efeda6125f7febb"
+checksum = "e5333cb196ca92fd4dc57d0ab6b088eb5642e12468349648217f8094efe96761"
 dependencies = [
  "bolero-generator-derive",
  "either",
@@ -111,10 +111,11 @@ dependencies = [
 
 [[package]]
 name = "bolero-generator-derive"
-version = "0.8.0"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b3c57c2a0967ad1a09ba4c2bf8f1c6b6db2f71e8c0db4fa280c65a0f6c249c3"
+checksum = "0b5045e0b5ce682e32cd85c3c6aaf6a6a3ef4d2036841b2f35f10ec7ada8cce0"
 dependencies = [
+ "proc-macro-crate 1.3.1",
  "proc-macro2",
  "quote",
  "syn 1.0.109",
@@ -122,27 +123,27 @@ dependencies = [
 
 [[package]]
 name = "bolero-honggfuzz"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7996a3fa8d93652358b9b3b805233807168f49740a8bf91a531cd61e4da65355"
+checksum = "dab549c038deb170f7e0af6dc942742c86ccd68db2c515a66a7ed4bc88a41da0"
 dependencies = [
  "bolero-engine",
 ]
 
 [[package]]
 name = "bolero-kani"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "206879993fffa1cf2c703b1ef93b0febfa76bae85a0a5d4ae0ee6d99a2e3b74e"
+checksum = "1ef9db1e728fbf9f77b27ed19ef2a6a22e9a8d24106437bd6aab1d8c49d88ec3"
 dependencies = [
  "bolero-engine",
 ]
 
 [[package]]
 name = "bolero-libfuzzer"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdc5547411b84703d9020914f15a7d709cfb738c72b5e0f5a499fe56b8465c98"
+checksum = "258e37e66624175f9a40b33c00cbb33de41646001ef25230afcd742eaa22ccfd"
 dependencies = [
  "bolero-engine",
  "cc",
@@ -155,7 +156,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4114279215a005bc675e386011e594e1d9b800918cea18fcadadcce864a2046b"
 dependencies = [
  "borsh-derive",
- "hashbrown",
+ "hashbrown 0.13.2",
 ]
 
 [[package]]
@@ -166,7 +167,7 @@ checksum = "0754613691538d51f329cce9af41d7b7ca150bc973056f1156611489475f54f7"
 dependencies = [
  "borsh-derive-internal",
  "borsh-schema-derive-internal",
- "proc-macro-crate",
+ "proc-macro-crate 0.1.5",
  "proc-macro2",
  "syn 1.0.109",
 ]
@@ -227,6 +228,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
+name = "equivalent"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
+
+[[package]]
 name = "getrandom"
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -250,6 +257,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43a3c133739dddd0d2990f9a4bdf8eb4b21ef50e4851ca85ab661199821d510e"
 dependencies = [
  "ahash",
+]
+
+[[package]]
+name = "hashbrown"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c6201b9ff9fd90a5a3bac2e56a830d0caa509576f0e503818ee82c181b3437a"
+
+[[package]]
+name = "indexmap"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d5477fe2230a79769d8dc68e0eabf5437907c0457a5614a9e8dddb67f65eb65d"
+dependencies = [
+ "equivalent",
+ "hashbrown 0.14.0",
 ]
 
 [[package]]
@@ -363,6 +386,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d6ea3c4595b96363c13943497db34af4460fb474a95c43f4446ad341b8c9785"
 dependencies = [
  "toml",
+]
+
+[[package]]
+name = "proc-macro-crate"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f4c021e1093a56626774e81216a4ce732a735e5bad4868a03f3ed65ca0c3919"
+dependencies = [
+ "once_cell",
+ "toml_edit",
 ]
 
 [[package]]
@@ -488,6 +521,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "toml_datetime"
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7cda73e2f1397b1262d6dfdcef8aafae14d1de7748d66822d3bfeeb6d03e5e4b"
+
+[[package]]
+name = "toml_edit"
+version = "0.19.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f8123f27e969974a3dfba720fdb560be359f57b44302d280ba72e76a74480e8a"
+dependencies = [
+ "indexmap",
+ "toml_datetime",
+ "winnow",
+]
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -504,3 +554,12 @@ name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
+
+[[package]]
+name = "winnow"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acaaa1190073b2b101e15083c38ee8ec891b5e05cbee516521e94ec008f61e64"
+dependencies = [
+ "memchr",
+]
