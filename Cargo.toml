@@ -16,6 +16,12 @@ near-account-id = { path = "", features = ["internal_unstable"] }
 serde = { version = "1.0.136", features = ["alloc", "derive", "rc"] }
 serde_json = "1.0.68"
 
+# We don't use these directly - setting these version requirements is a workaround to block dependency resolution
+# from choosing dependency versions that will cause compilation errors.
+anyhow = "1.0.14"
+backtrace = "0.3.13"
+lazy_static = "1.0.2"
+
 [package]
 name = "near-account-id"
 version = "0.17.0"
@@ -38,3 +44,9 @@ serde = { workspace = true, optional = true }
 [dev-dependencies]
 bolero.workspace = true
 serde_json.workspace = true
+
+# We don't use these directly - setting these version requirements is a workaround to block dependency resolution
+# from choosing dependency versions that will cause compilation errors.
+anyhow.workspace = true
+backtrace.workspace = true
+lazy_static.workspace = true

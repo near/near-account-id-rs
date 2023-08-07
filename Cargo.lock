@@ -309,9 +309,12 @@ dependencies = [
 name = "near-account-id"
 version = "0.17.0"
 dependencies = [
+ "anyhow",
  "arbitrary",
+ "backtrace",
  "bolero",
  "borsh",
+ "lazy_static",
  "serde",
  "serde_json",
 ]
