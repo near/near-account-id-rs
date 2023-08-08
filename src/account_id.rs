@@ -326,31 +326,16 @@ impl<'a> From<Cow<'a, AccountIdRef>> for AccountId {
 
 #[cfg(feature = "arbitrary")]
 impl<'a> arbitrary::Arbitrary<'a> for AccountId {
-    fn size_hint(_depth: usize) -> (usize, Option<usize>) {
-        (AccountId::MIN_LEN, Some(AccountId::MAX_LEN))
+    fn size_hint(depth: usize) -> (usize, Option<usize>) {
+        <&AccountIdRef as arbitrary::Arbitrary>::size_hint(depth)
     }
 
     fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
-        let mut s = u.arbitrary::<&str>()?;
-        loop {
-            match s.parse::<AccountId>() {
-                Ok(account_id) => break Ok(account_id),
-                Err(ParseAccountError {
-                    char: Some((idx, _)),
-                    ..
-                }) => {
-                    s = &s[..idx];
-                    continue;
-                }
-                _ => break Err(arbitrary::Error::IncorrectFormat),
-            }
-        }
+        Ok(u.arbitrary::<&AccountIdRef>()?.into())
     }
 
     fn arbitrary_take_rest(u: arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
-        <&str as arbitrary::Arbitrary>::arbitrary_take_rest(u)?
-            .parse()
-            .map_err(|_| arbitrary::Error::IncorrectFormat)
+        Ok(<&AccountIdRef as arbitrary::Arbitrary>::arbitrary_take_rest(u)?.into())
     }
 }
 
