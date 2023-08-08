@@ -64,27 +64,6 @@ impl AccountIdRef {
         unsafe { &*(id as *const str as *const Self) }
     }
 
-    /// Construct a [`&mut AccountIdRef`](AccountIdRef) from a mutable string reference.
-    ///
-    /// This constructor validates the provided ID and will produce an error when validation fails.
-    pub fn new_mut<S: AsMut<str> + ?Sized>(id: &mut S) -> Result<&mut Self, ParseAccountError> {
-        let id = id.as_mut();
-        validate(id)?;
-
-        // Safety: see `AccountId::new`
-        Ok(unsafe { &mut *(id as *mut str as *mut Self) })
-    }
-
-    /// Construct a [`&mut AccountIdRef`](AccountIdRef) from a mutable string reference without validating
-    /// the address. It is the responsibility of the caller to ensure the account ID is valid.
-    pub fn new_unchecked_mut<S: AsMut<str> + ?Sized>(id: &mut S) -> &mut Self {
-        let id = id.as_mut();
-        debug_assert!(validate(id).is_ok());
-
-        // Safety: see `AccountId::new`
-        unsafe { &mut *(id as *mut str as *mut Self) }
-    }
-
     /// Returns a reference to the account ID bytes.
     pub fn as_bytes(&self) -> &[u8] {
         self.0.as_bytes()
@@ -226,23 +205,9 @@ impl<'s> TryFrom<&'s str> for &'s AccountIdRef {
     }
 }
 
-impl<'s> TryFrom<&'s mut str> for &'s mut AccountIdRef {
-    type Error = ParseAccountError;
-
-    fn try_from(value: &'s mut str) -> Result<Self, Self::Error> {
-        AccountIdRef::new_mut(value)
-    }
-}
-
 impl AsRef<str> for AccountIdRef {
     fn as_ref(&self) -> &str {
         &self.0
-    }
-}
-
-impl AsMut<str> for AccountIdRef {
-    fn as_mut(&mut self) -> &mut str {
-        &mut self.0
     }
 }
 
