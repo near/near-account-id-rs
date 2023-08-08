@@ -29,6 +29,10 @@ Licensed under either of
 
 at your option.
 
+## Minimum Supported Rust Version (MSRV)
+
+1.64
+
 ## Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
