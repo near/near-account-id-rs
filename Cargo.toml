@@ -21,8 +21,9 @@ serde = { version = "1.0.119", features = ["alloc", "derive", "rc"], optional = 
 bolero = ">=0.8.0, <0.10.0"
 serde_json = "1.0.25"
 
-# We don't use these directly - setting these version requirements is a workaround to block dependency resolution
-# from choosing dependency versions that will cause compilation errors.
+# We don't use these directly - we just need to tighten the version requirements to block dependency resolution
+# from choosing old versions that cause compilation errors. These problems are usually detected by the
+# "minimal-deps" CI job.
 anyhow = "1.0.14"
 backtrace = "0.3.13"
 lazy_static = "1.0.2"
