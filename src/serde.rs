@@ -1,8 +1,19 @@
+use crate::AccountIdRef;
+
 use super::AccountId;
 
 use serde::{de, ser};
 
 impl ser::Serialize for AccountId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ser::Serializer,
+    {
+        self.0.serialize(serializer)
+    }
+}
+
+impl ser::Serialize for AccountIdRef {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: ser::Serializer,
@@ -17,19 +28,27 @@ impl<'de> de::Deserialize<'de> for AccountId {
         D: de::Deserializer<'de>,
     {
         let account_id = Box::<str>::deserialize(deserializer)?;
-        AccountId::validate(&account_id).map_err(|err| {
+        crate::validation::validate(&account_id).map_err(|err| {
             de::Error::custom(format!("invalid value: \"{}\", {}", account_id, err))
         })?;
         Ok(AccountId(account_id))
     }
 }
 
+impl<'de> de::Deserialize<'de> for &'de AccountIdRef {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        <&str as de::Deserialize>::deserialize(deserializer)
+            .and_then(|s| Self::try_from(s).map_err(de::Error::custom))
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{
-        super::tests::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS},
-        AccountId,
-    };
+    use crate::test_data::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS};
+    use crate::AccountId;
 
     use serde_json::json;
 
@@ -69,7 +88,10 @@ mod tests {
                 if let Ok(account_id) = serde_json::from_value::<AccountId>(json!(account_id)) {
                     assert_eq!(
                         account_id,
-                        serde_json::from_value(serde_json::to_value(&account_id).unwrap()).unwrap()
+                        serde_json::from_value::<AccountId>(
+                            serde_json::to_value(&account_id).unwrap()
+                        )
+                        .unwrap()
                     );
                 }
             }

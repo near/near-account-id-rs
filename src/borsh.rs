@@ -1,3 +1,5 @@
+use crate::AccountIdRef;
+
 use super::AccountId;
 
 use std::io::{Read, Write};
@@ -10,10 +12,16 @@ impl BorshSerialize for AccountId {
     }
 }
 
+impl BorshSerialize for AccountIdRef {
+    fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        self.0.serialize(writer)
+    }
+}
+
 impl BorshDeserialize for AccountId {
     fn deserialize_reader<R: Read>(rd: &mut R) -> std::io::Result<Self> {
         let account_id = Box::<str>::deserialize_reader(rd)?;
-        Self::validate(&account_id).map_err(|err| {
+        crate::validation::validate(&account_id).map_err(|err| {
             std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 format!("invalid value: \"{}\", {}", account_id, err),
@@ -25,10 +33,10 @@ impl BorshDeserialize for AccountId {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        super::tests::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS},
-        *,
-    };
+    use borsh::{BorshDeserialize as _, BorshSerialize as _};
+
+    use crate::test_data::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS};
+    use crate::AccountId;
 
     #[test]
     fn test_is_valid_account_id() {
