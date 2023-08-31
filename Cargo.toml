@@ -10,7 +10,6 @@ publish = true
 
 [features]
 default = ["borsh", "serde"]
-internal_unstable = []
 
 [dependencies]
 arbitrary = {  version = "1", features = ["derive"] , optional = true }

@@ -44,13 +44,10 @@ impl AccountId {
     /// ```
     /// use near_account_id::AccountId;
     ///
-    /// let alice = AccountId::new_unvalidated("alice.near".to_string());
+    /// let alice = AccountId::new_unchecked("alice.near".to_string());
     /// assert!(AccountId::validate(alice.as_str()).is_ok());
     /// ```
-    #[doc(hidden)]
-    #[cfg(feature = "internal_unstable")]
-    #[deprecated = "AccountId construction without validation is illegal since #4440"]
-    pub fn new_unvalidated(account_id: String) -> Self {
+    pub fn new_unchecked(account_id: String) -> Self {
         Self(account_id.into_boxed_str())
     }
 
