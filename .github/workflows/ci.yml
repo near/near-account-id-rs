@@ -13,7 +13,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: rust:1.64.0
+      image: rust:1.65.0
     steps:
     - uses: actions/checkout@v3
     - uses: Swatinem/rust-cache@v1
