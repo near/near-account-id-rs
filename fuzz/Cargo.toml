@@ -1,20 +1,20 @@
 [package]
 name = "near-account-id-fuzz"
 version = "0.0.0"
-authors.workspace = true
-edition.workspace = true
-repository.workspace = true
-license.workspace = true
+authors = ["Near Inc <hello@nearprotocol.com>"]
+edition = "2021"
+repository = "https://github.com/near/near-account-id"
+license = "MIT OR Apache-2.0"
 publish = false
 
 [package.metadata]
 cargo-fuzz = true
 
 [dependencies]
-libfuzzer-sys.workspace = true
-borsh.workspace = true
-serde_json.workspace = true
-near-account-id.workspace = true
+libfuzzer-sys = { version = ">=0.2.0, <0.5", features = ["arbitrary-derive"] }
+borsh = { version = "0.10", features = ["rc"] }
+serde_json = "1.0.25"
+near-account-id = { path = "..", features = ["internal_unstable"] }
 
 [[bin]]
 name = "serde"
