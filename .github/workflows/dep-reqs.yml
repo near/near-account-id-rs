@@ -16,10 +16,10 @@ jobs:
     # Build and test with the oldest possible versions of deps. This helps ensure the semver requirements for deps
     # are OK.
     runs-on: ubuntu-latest
-    container:
-      image: rust:1.65.0
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@1.65
     - uses: Swatinem/rust-cache@v1
     - name: Set up nightly
       run: |
@@ -35,10 +35,10 @@ jobs:
     # Build and test with the newest possible versions of deps. This helps ensure the semver requirements for deps
     # are OK.
     runs-on: ubuntu-latest
-    container:
-      image: rust:stable
     steps:
     - uses: actions/checkout@v3
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
     - uses: Swatinem/rust-cache@v1
     - name: Update Cargo.lock
       run: cargo update
