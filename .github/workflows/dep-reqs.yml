@@ -36,7 +36,7 @@ jobs:
     # are OK.
     runs-on: ubuntu-latest
     container:
-      image: rust:1.65.0
+      image: rust:stable
     steps:
     - uses: actions/checkout@v3
     - uses: Swatinem/rust-cache@v1
