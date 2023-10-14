@@ -44,10 +44,13 @@ impl AccountId {
     /// ```
     /// use near_account_id::AccountId;
     ///
-    /// let alice = AccountId::new_unchecked("alice.near".to_string());
+    /// let alice = AccountId::new_unvalidated("alice.near".to_string());
     /// assert!(AccountId::validate(alice.as_str()).is_ok());
     /// ```
-    pub fn new_unchecked(account_id: String) -> Self {
+    #[doc(hidden)]
+    #[cfg(feature = "internal_unstable")]
+    #[deprecated = "AccountId construction without validation is illegal since #4440"]
+    pub fn new_unvalidated(account_id: String) -> Self {
         Self(account_id.into_boxed_str())
     }
 
@@ -128,13 +131,13 @@ impl Deref for AccountId {
     type Target = AccountIdRef;
 
     fn deref(&self) -> &Self::Target {
-        AccountIdRef::new_unchecked(&self.0)
+        AccountIdRef::new_unvalidated(&self.0)
     }
 }
 
 impl std::borrow::Borrow<AccountIdRef> for AccountId {
     fn borrow(&self) -> &AccountIdRef {
-        AccountIdRef::new_unchecked(self)
+        AccountIdRef::new_unvalidated(self)
     }
 }
 
