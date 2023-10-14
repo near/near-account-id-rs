@@ -13,7 +13,7 @@ default = ["borsh", "serde"]
 
 [dependencies]
 arbitrary = {  version = "1", features = ["derive"] , optional = true }
-borsh = { version = "0.10", features = ["rc"], optional = true }
+borsh = { version = "1.0.0", features = ["rc"], optional = true }
 serde = { version = "1.0.119", features = ["alloc", "derive", "rc"], optional = true }
 
 [dev-dependencies]
