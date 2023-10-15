@@ -9,7 +9,8 @@ license = "MIT OR Apache-2.0"
 publish = true
 
 [features]
-default = ["borsh", "serde"]
+default = ["serde"]
+borsh = ["dep:borsh"]
 
 [dependencies]
 arbitrary = {  version = "1", features = ["derive"] , optional = true }

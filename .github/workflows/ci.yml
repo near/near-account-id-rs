@@ -13,22 +13,44 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: rust:1.66.0
+      image: rust:1.65.0
     steps:
     - uses: actions/checkout@v3
     - uses: Swatinem/rust-cache@v1
     - name: Build
-      run:  cargo build --all-features --verbose --locked
+      run:  cargo build --verbose --locked
     - name: Run tests
-      run: cargo test --all-features --workspace --verbose --locked
-  clippy:
+      run: cargo test --workspace --verbose --locked
+  test-borsh:
     runs-on: ubuntu-latest
     container:
       image: rust:1.66.0
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v1
+      - name: Build
+        run:  cargo build --verbose --locked --features "borsh"
+      - name: Run tests
+        run: cargo test --features "borsh" --workspace --verbose --locked
+  clippy:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:1.64.0
     steps:
     - uses: actions/checkout@v3
     - uses: Swatinem/rust-cache@v1
     - name: Install clippy
       run: rustup component add clippy
     - name: Run clippy
-      run: cargo clippy --all-features
+      run: cargo clippy
+  clippy-borsh:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:1.66.0
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v1
+      - name: Install clippy
+        run: rustup component add clippy
+      - name: Run clippy
+        run: cargo clippy --features "borsh"
