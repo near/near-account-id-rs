@@ -21,10 +21,6 @@ use crate::{validation::validate, AccountId, ParseAccountError};
 /// // Construction
 /// let alice = AccountIdRef::new("alice.near").unwrap();
 /// assert!(AccountIdRef::new("invalid.").is_err());
-///
-/// // Initialize without validating
-/// let alice_unchecked = AccountIdRef::new_unvalidated("alice.near");
-/// assert_eq!(alice, alice_unchecked);
 /// ```
 ///
 /// [`FromStr`]: std::str::FromStr
@@ -56,7 +52,7 @@ impl AccountIdRef {
     /// It is the responsibility of the caller to ensure the account ID is valid.
     ///
     /// For more information, read: <https://docs.near.org/docs/concepts/account#account-id-rules>
-    pub fn new_unvalidated<S: AsRef<str> + ?Sized>(id: &S) -> &Self {
+    pub(crate) fn new_unvalidated<S: AsRef<str> + ?Sized>(id: &S) -> &Self {
         let id = id.as_ref();
         debug_assert!(validate(id).is_ok());
 
