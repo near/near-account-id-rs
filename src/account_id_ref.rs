@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use crate::{
-    validation::{validate, MAX_LEN, MIN_LEN},
+    validation::{validate, validate_const, MAX_LEN, MIN_LEN},
     AccountId, ParseAccountError,
 };
 
@@ -35,27 +35,6 @@ use crate::{
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Hash)]
 #[cfg_attr(feature = "abi", derive(schemars::JsonSchema, BorshSchema))]
 pub struct AccountIdRef(pub(crate) str);
-
-const fn validate_const(id: &[u8], idx: usize, current_char_is_separator: bool) -> () {
-    if idx == id.len() && current_char_is_separator {
-        panic!("account ID ends with char separator")
-    }
-    if idx == id.len() {
-        return;
-    }
-
-    match id[idx] {
-        b'a'..=b'z' | b'0'..=b'9' => validate_const(id, idx + 1, false),
-        b'-' | b'_' | b'.' => {
-            if current_char_is_separator {
-                panic!("account ID contains redundant separator")
-            } else {
-                validate_const(id, idx + 1, true)
-            }
-        }
-        _ => panic!("account ID contains invalid char"),
-    };
-}
 
 impl AccountIdRef {
     /// Shortest valid length for a NEAR Account ID.
@@ -415,13 +394,6 @@ mod tests {
 
     use super::*;
     use crate::AccountIdRef;
-
-    const ALICE: &AccountIdRef = AccountIdRef::new_or_panic("alice.near");
-    #[test]
-    fn test_alice() {
-        assert_eq!(ALICE.as_str(), "alice.near");
-        assert_eq!(ALICE.as_ref(), "alice.near");
-    }
 
     #[test]
     fn test_err_kind_classification() {
