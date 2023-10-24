@@ -49,7 +49,7 @@ impl AccountId {
     /// ```
     #[doc(hidden)]
     #[cfg(feature = "internal_unstable")]
-    #[deprecated = "AccountId construction without validation is illegal since #4440"]
+    #[deprecated = "AccountId construction without validation is illegal since nearcore#4440"]
     pub fn new_unvalidated(account_id: String) -> Self {
         Self(account_id.into_boxed_str())
     }
