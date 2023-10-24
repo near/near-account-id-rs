@@ -113,11 +113,6 @@ impl AccountId {
     pub fn validate(account_id: &str) -> Result<(), ParseAccountError> {
         crate::validation::validate(account_id)
     }
-
-    /// Returns the length of the underlying account id string.
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
 }
 
 impl AsRef<str> for AccountId {
