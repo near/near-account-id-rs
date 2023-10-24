@@ -5,6 +5,41 @@ pub const MIN_LEN: usize = 2;
 /// Longest valid length for a NEAR Account ID.
 pub const MAX_LEN: usize = 64;
 
+pub const fn validate_const(account_id: &str) {
+    const fn validate_format_const(id: &[u8], idx: usize, current_char_is_separator: bool) {
+        if idx >= id.len() {
+            if current_char_is_separator {
+                panic!("NEAR Account ID cannot end with char separator (-, _, .)");
+            }
+            return;
+        }
+
+        match id[idx] {
+            b'a'..=b'z' | b'0'..=b'9' => validate_format_const(id, idx + 1, false),
+            b'-' | b'_' | b'.' => {
+                if current_char_is_separator {
+                    panic!("NEAR Account ID cannot contain redundant separator (-, _, .)")
+                } else if idx == 0 {
+                    panic!("NEAR Account ID cannot start with char separator (-, _, .)")
+                } else {
+                    validate_format_const(id, idx + 1, true)
+                }
+            }
+            _ => panic!(
+                "NEAR Account ID cannot contain invalid chars (only a-z, 0-9, -, _, and . are allowed)"
+            ),
+        }
+    }
+
+    if account_id.len() < MIN_LEN {
+        panic!("NEAR Account ID is too short")
+    } else if account_id.len() > MAX_LEN {
+        panic!("NEAR Account ID is too long")
+    }
+
+    validate_format_const(account_id.as_bytes(), 0, false);
+}
+
 pub fn validate(account_id: &str) -> Result<(), ParseAccountError> {
     if account_id.len() < MIN_LEN {
         Err(ParseAccountError {
@@ -66,7 +101,7 @@ mod tests {
 
     #[test]
     fn test_is_valid_account_id() {
-        for account_id in OK_ACCOUNT_IDS.iter().cloned() {
+        for account_id in OK_ACCOUNT_IDS {
             if let Err(err) = validate(account_id) {
                 panic!(
                     "Valid account id {:?} marked invalid: {}",
@@ -76,10 +111,37 @@ mod tests {
             }
         }
 
-        for account_id in BAD_ACCOUNT_IDS.iter().cloned() {
-            if validate(account_id).is_ok() {
-                panic!("Invalid account id {:?} marked valid", account_id);
-            }
+        for account_id in BAD_ACCOUNT_IDS {
+            assert!(
+                validate(account_id).is_err(),
+                "Invalid account id {} marked valid",
+                account_id
+            );
+        }
+    }
+    #[test]
+    fn test_is_valid_account_id_const() {
+        for account_id in OK_ACCOUNT_IDS {
+            validate_const(account_id);
+        }
+    }
+
+    #[test]
+    fn test_is_invalid_account_id_const() {
+        for account_id in BAD_ACCOUNT_IDS {
+            // Do not print panic message for caught panic
+            std::panic::set_hook(Box::new(|_| {}));
+
+            let result = std::panic::catch_unwind(|| validate_const(account_id));
+
+            // Restore panic hook to default to properly handle assertion failure
+            let _ = std::panic::take_hook();
+
+            assert!(
+                result.is_err(),
+                "Invalid account id {} marked valid",
+                account_id
+            );
         }
     }
 }

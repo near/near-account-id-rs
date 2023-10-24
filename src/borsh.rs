@@ -33,19 +33,19 @@ impl BorshDeserialize for AccountId {
 
 #[cfg(test)]
 mod tests {
-    use borsh::{BorshDeserialize as _, BorshSerialize as _};
+    use borsh::BorshDeserialize as _;
 
     use crate::test_data::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS};
     use crate::AccountId;
 
     #[test]
     fn test_is_valid_account_id() {
-        for account_id in OK_ACCOUNT_IDS.iter() {
+        for account_id in OK_ACCOUNT_IDS {
             let parsed_account_id = account_id.parse::<AccountId>().unwrap_or_else(|err| {
                 panic!("Valid account id {:?} marked invalid: {}", account_id, err)
             });
 
-            let str_serialized_account_id = account_id.try_to_vec().unwrap();
+            let str_serialized_account_id = borsh::to_vec(account_id).unwrap();
 
             let deserialized_account_id = AccountId::try_from_slice(&str_serialized_account_id)
                 .unwrap_or_else(|err| {
@@ -54,14 +54,14 @@ mod tests {
             assert_eq!(deserialized_account_id, parsed_account_id);
 
             let serialized_account_id =
-                deserialized_account_id.try_to_vec().unwrap_or_else(|err| {
+                borsh::to_vec(&deserialized_account_id).unwrap_or_else(|err| {
                     panic!("failed to serialize account ID {:?}: {}", account_id, err)
                 });
             assert_eq!(serialized_account_id, str_serialized_account_id);
         }
 
-        for account_id in BAD_ACCOUNT_IDS.iter() {
-            let str_serialized_account_id = account_id.try_to_vec().unwrap();
+        for account_id in BAD_ACCOUNT_IDS {
+            let str_serialized_account_id = borsh::to_vec(account_id).unwrap();
 
             assert!(
                 AccountId::try_from_slice(&str_serialized_account_id).is_err(),
@@ -77,7 +77,8 @@ mod tests {
             if let Ok(account_id) = AccountId::try_from_slice(input) {
                 assert_eq!(
                     account_id,
-                    AccountId::try_from_slice(account_id.try_to_vec().unwrap().as_slice()).unwrap()
+                    AccountId::try_from_slice(borsh::to_vec(&account_id).unwrap().as_slice())
+                        .unwrap()
                 );
             }
         });
