@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use crate::{validation::validate, AccountId, ParseAccountError};
+use crate::{AccountId, ParseAccountError};
 
 /// Account identifier. This is the human readable UTF-8 string which is used internally to index
 /// accounts on the network and their respective state.
@@ -40,12 +40,24 @@ impl AccountIdRef {
     /// This constructor validates the provided ID, and will produce an error when validation fails.
     pub fn new<S: AsRef<str> + ?Sized>(id: &S) -> Result<&Self, ParseAccountError> {
         let id = id.as_ref();
-        validate(id)?;
+        crate::validation::validate(id)?;
 
         // Safety:
         // - a newtype struct is guaranteed to have the same memory layout as its only field
         // - the borrow checker will enforce its rules appropriately on the resulting reference
         Ok(unsafe { &*(id as *const str as *const Self) })
+    }
+
+    /// Construct a [`&AccountIdRef`](AccountIdRef) from with validation at compile time.
+    /// This constructor will panic if validation fails.
+    /// ```rust
+    /// use near_account_id::AccountIdRef;
+    /// const ALICE: &AccountIdRef = AccountIdRef::new_or_panic("alice.near");
+    /// ```
+    pub const fn new_or_panic(id: &str) -> &Self {
+        crate::validation::validate_const(id);
+
+        unsafe { &*(id as *const str as *const Self) }
     }
 
     /// Construct a [`&AccountIdRef`](AccountIdRef) from a string reference without validating the address.
@@ -54,7 +66,7 @@ impl AccountIdRef {
     /// For more information, read: <https://docs.near.org/docs/concepts/account#account-id-rules>
     pub(crate) fn new_unvalidated<S: AsRef<str> + ?Sized>(id: &S) -> &Self {
         let id = id.as_ref();
-        debug_assert!(validate(id).is_ok());
+        debug_assert!(crate::validation::validate(id).is_ok());
 
         // Safety: see `AccountId::new`
         unsafe { &*(id as *const str as *const Self) }
