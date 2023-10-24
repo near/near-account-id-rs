@@ -183,6 +183,11 @@ impl AccountIdRef {
     pub fn is_system(&self) -> bool {
         self == "system"
     }
+
+    /// Returns the length of the underlying account id string.
+    pub const fn len(&self) -> usize {
+        self.0.len()
+    }
 }
 
 impl std::fmt::Display for AccountIdRef {
