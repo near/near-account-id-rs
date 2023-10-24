@@ -384,7 +384,6 @@ mod tests {
     use crate::ParseErrorKind;
 
     use super::*;
-    use crate::AccountIdRef;
 
     #[test]
     fn test_err_kind_classification() {
