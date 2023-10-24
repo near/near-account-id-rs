@@ -26,7 +26,9 @@
 //! ## Usage
 //!
 //! ```
-//! use near_account_id::AccountId;
+//! use near_account_id::{AccountIdRef, AccountId};
+//!
+//! const ALICE: &AccountIdRef = AccountIdRef::new_or_panic("alice.near");
 //!
 //! let alice: AccountId = "alice.near".parse().unwrap();
 //!
