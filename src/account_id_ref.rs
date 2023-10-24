@@ -68,7 +68,7 @@ impl AccountIdRef {
         let id = id.as_ref();
         debug_assert!(crate::validation::validate(id).is_ok());
 
-        // Safety: see `AccountId::new`
+        // Safety: see `AccountIdRef::new`
         unsafe { &*(id as *const str as *const Self) }
     }
 
