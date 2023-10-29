@@ -1,6 +1,6 @@
 [package]
 name = "near-account-id"
-version = "0.17.0"
+version = "1.0.0-alpha.1"
 authors = ["Near Inc <hello@nearprotocol.com>"]
 edition = "2021"
 description = "This crate contains the Account ID primitive and its validation facilities"
@@ -10,6 +10,8 @@ publish = true
 
 [features]
 default = []
+# This feature was introduced for legacy reasons for nearcore, and MUST be avoided
+# https://github.com/near/nearcore/pull/4621#issuecomment-892099860
 internal_unstable = []
 
 [dependencies]
