@@ -29,6 +29,28 @@ use crate::{AccountId, ParseAccountError};
 #[cfg_attr(feature = "abi", derive(schemars::JsonSchema, BorshSchema))]
 pub struct AccountIdRef(pub(crate) str);
 
+/// Enum representing possible types of accounts.
+#[derive(PartialEq)]
+pub enum AccountType {
+    /// Any valid account, that is neither NEAR-implicit nor ETH-implicit.
+    NamedAccount,
+    /// An account with 64 characters long hexadecimal address.
+    NearImplicitAccount,
+    /// An account which address starts with '0x', followed by 40 hex characters.
+    EthImplicitAccount,
+}
+
+impl AccountType {
+    pub fn is_implicit(&self) -> bool {
+        match &self {
+            Self::NearImplicitAccount => true,
+            // TODO(eth-implicit) change to true later, see https://github.com/near/nearcore/issues/10018
+            Self::EthImplicitAccount => false,
+            Self::NamedAccount => false,
+        }
+    }
+}
+
 impl AccountIdRef {
     /// Shortest valid length for a NEAR Account ID.
     pub const MIN_LEN: usize = crate::validation::MIN_LEN;
@@ -140,6 +162,29 @@ impl AccountIdRef {
             .map_or(false, |s| !s.contains('.'))
     }
 
+    /// Returns `true` if the `AccountId` is a 40 characters long hexadecimal prefixed with '0x'.
+    ///
+    /// See [Implicit-Accounts](https://docs.near.org/docs/concepts/account#implicit-accounts).
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// use near_account_id::AccountId;
+    ///
+    /// let alice: AccountId = "alice.near".parse().unwrap();
+    /// assert!(!alice.is_eth_implicit());
+    ///
+    /// let rando = "0xb794f5ea0ba39494ce839613fffba74279579268"
+    ///     .parse::<AccountId>()
+    ///     .unwrap();
+    /// assert!(rando.is_eth_implicit());
+    /// ```
+    pub fn is_eth_implicit(&self) -> bool {
+        self.len() == 42
+            && self.0.starts_with("0x")
+            && self.0[2..].as_bytes().iter().all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
+    }
+
     /// Returns `true` if the `AccountId` is a 64 characters long hexadecimal.
     ///
     /// See [Implicit-Accounts](https://docs.near.org/docs/concepts/account#implicit-accounts).
@@ -150,19 +195,29 @@ impl AccountIdRef {
     /// use near_account_id::AccountId;
     ///
     /// let alice: AccountId = "alice.near".parse().unwrap();
-    /// assert!(!alice.is_implicit());
+    /// assert!(!alice.is_near_implicit());
     ///
     /// let rando = "98793cd91a3f870fb126f66285808c7e094afcfc4eda8a970f6648cdf0dbd6de"
     ///     .parse::<AccountId>()
     ///     .unwrap();
-    /// assert!(rando.is_implicit());
+    /// assert!(rando.is_near_implicit());
     /// ```
-    pub fn is_implicit(&self) -> bool {
+    pub fn is_near_implicit(&self) -> bool {
         self.0.len() == 64
             && self
                 .as_bytes()
                 .iter()
                 .all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
+    }
+
+    pub fn get_account_type(&self) -> AccountType {
+        if self.is_eth_implicit() {
+            return AccountType::EthImplicitAccount;
+        }
+        if self.is_near_implicit() {
+            return AccountType::NearImplicitAccount;
+        }
+        AccountType::NamedAccount
     }
 
     /// Returns `true` if this `AccountId` is the system account.
@@ -457,6 +512,9 @@ mod tests {
             "alex-skidanov",
             "b-o_w_e-n",
             "no_lols",
+            // ETH-implicit account
+            "0xb794f5ea0ba39494ce839613fffba74279579268",
+            // NEAR-implicit account
             "0123456789012345678901234567890123456789012345678901234567890123",
         ];
         for account_id in ok_top_level_account_ids {
@@ -581,6 +639,11 @@ mod tests {
                 "123456789012345678901234567890123456789012345678901234567890",
                 "1234567890.123456789012345678901234567890123456789012345678901234567890",
             ),
+            (
+                "b794f5ea0ba39494ce839613fffba74279579268",
+                // ETH-implicit account
+                "0xb794f5ea0ba39494ce839613fffba74279579268",
+            ),
             ("aa", "ъ@aa"),
             ("aa", "ъ.aa"),
         ];
@@ -598,26 +661,26 @@ mod tests {
     }
 
     #[test]
-    fn test_is_account_id_64_len_hex() {
-        let valid_64_len_hex_account_ids = &[
+    fn test_is_account_id_near_implicit() {
+        let valid_near_implicit_account_ids = &[
             "0000000000000000000000000000000000000000000000000000000000000000",
             "6174617461746174617461746174617461746174617461746174617461746174",
             "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
             "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
             "20782e20662e64666420482123494b6b6c677573646b6c66676a646b6c736667",
         ];
-        for valid_account_id in valid_64_len_hex_account_ids {
+        for valid_account_id in valid_near_implicit_account_ids {
             assert!(
                 matches!(
                     AccountIdRef::new(valid_account_id),
-                    Ok(account_id) if account_id.is_implicit()
+                    Ok(account_id) if account_id.get_account_type() == AccountType::NearImplicitAccount
                 ),
                 "Account ID {} should be valid 64-len hex",
                 valid_account_id
             );
         }
 
-        let invalid_64_len_hex_account_ids = &[
+        let invalid_near_implicit_account_ids = &[
             "000000000000000000000000000000000000000000000000000000000000000",
             "6.74617461746174617461746174617461746174617461746174617461746174",
             "012-456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
@@ -625,13 +688,55 @@ mod tests {
             "oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
             "00000000000000000000000000000000000000000000000000000000000000",
         ];
-        for invalid_account_id in invalid_64_len_hex_account_ids {
+        for invalid_account_id in invalid_near_implicit_account_ids {
             assert!(
                 !matches!(
                     AccountIdRef::new(invalid_account_id),
-                    Ok(account_id) if account_id.is_implicit()
+                    Ok(account_id) if account_id.get_account_type() == AccountType::NearImplicitAccount
                 ),
-                "Account ID {} is not an implicit account",
+                "Account ID {} is not a NEAR-implicit account",
+                invalid_account_id
+            );
+        }
+    }
+
+    #[test]
+    fn test_is_account_id_eth_implicit() {
+        let valid_eth_implicit_account_ids = &[
+            "0x0000000000000000000000000000000000000000",
+            "0x6174617461746174617461746174617461746174",
+            "0x0123456789abcdef0123456789abcdef01234567",
+            "0xffffffffffffffffffffffffffffffffffffffff",
+            "0x20782e20662e64666420482123494b6b6c677573",
+        ];
+        for valid_account_id in valid_eth_implicit_account_ids {
+            assert!(
+                matches!(
+                    valid_account_id.parse::<AccountId>(),
+                    Ok(account_id) if account_id.get_account_type() == AccountType::EthImplicitAccount
+                ),
+                "Account ID {} should be valid 42-len hex, starting with 0x",
+                valid_account_id
+            );
+        }
+
+        let invalid_eth_implicit_account_ids = &[
+            "04b794f5ea0ba39494ce839613fffba74279579268",
+            "0x000000000000000000000000000000000000000",
+            "0x6.74617461746174617461746174617461746174",
+            "0x012-456789abcdef0123456789abcdef01234567",
+            "0xfffff_ffffffffffffffffffffffffffffffffff",
+            "0xoooooooooooooooooooooooooooooooooooooooo",
+            "0x00000000000000000000000000000000000000000",
+            "0000000000000000000000000000000000000000000000000000000000000000",
+        ];
+        for invalid_account_id in invalid_eth_implicit_account_ids {
+            assert!(
+                !matches!(
+                    invalid_account_id.parse::<AccountId>(),
+                    Ok(account_id) if account_id.get_account_type() == AccountType::EthImplicitAccount
+                ),
+                "Account ID {} is not an ETH-implicit account",
                 invalid_account_id
             );
         }
