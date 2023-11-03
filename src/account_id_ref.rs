@@ -30,6 +30,11 @@ use crate::{AccountId, ParseAccountError};
 pub struct AccountIdRef(pub(crate) str);
 
 /// Enum representing possible types of accounts.
+/// This `enum` is returned by the [`get_account_type`] method on [`AccountIdRef`].
+/// See its documentation for more.
+///
+/// [`get_account_type`]: AccountIdRef::get_account_type
+/// [`AccountIdRef`]: struct.AccountIdRef.html
 #[derive(PartialEq)]
 pub enum AccountType {
     /// Any valid account, that is neither NEAR-implicit nor ETH-implicit.
@@ -162,59 +167,35 @@ impl AccountIdRef {
             .map_or(false, |s| !s.contains('.'))
     }
 
-    /// Returns `true` if the `AccountId` is a 40 characters long hexadecimal prefixed with '0x'.
+    /// Returns `AccountType::EthImplicitAccount` if the `AccountId` is a 40 characters long hexadecimal prefixed with '0x'.
+    /// Returns `AccountType::NearImplicitAccount` if the `AccountId` is a 64 characters long hexadecimal.
+    /// Otherwise, returns `AccountType::NamedAccount`.
     ///
     /// See [Implicit-Accounts](https://docs.near.org/docs/concepts/account#implicit-accounts).
     ///
     /// ## Examples
     ///
     /// ```
-    /// use near_account_id::AccountId;
+    /// use near_account_id::{AccountId, AccountType};
     ///
     /// let alice: AccountId = "alice.near".parse().unwrap();
-    /// assert!(!alice.is_eth_implicit());
+    /// assert!(alice.get_account_type() == AccountType::NamedAccount);
     ///
-    /// let rando = "0xb794f5ea0ba39494ce839613fffba74279579268"
+    /// let eth_rando = "0xb794f5ea0ba39494ce839613fffba74279579268"
     ///     .parse::<AccountId>()
     ///     .unwrap();
-    /// assert!(rando.is_eth_implicit());
-    /// ```
-    pub fn is_eth_implicit(&self) -> bool {
-        self.len() == 42
-            && self.0.starts_with("0x")
-            && self.0[2..].as_bytes().iter().all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
-    }
-
-    /// Returns `true` if the `AccountId` is a 64 characters long hexadecimal.
+    /// assert!(eth_rando.get_account_type() == AccountType::EthImplicitAccount);
     ///
-    /// See [Implicit-Accounts](https://docs.near.org/docs/concepts/account#implicit-accounts).
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// use near_account_id::AccountId;
-    ///
-    /// let alice: AccountId = "alice.near".parse().unwrap();
-    /// assert!(!alice.is_near_implicit());
-    ///
-    /// let rando = "98793cd91a3f870fb126f66285808c7e094afcfc4eda8a970f6648cdf0dbd6de"
+    /// let near_rando = "98793cd91a3f870fb126f66285808c7e094afcfc4eda8a970f6648cdf0dbd6de"
     ///     .parse::<AccountId>()
     ///     .unwrap();
-    /// assert!(rando.is_near_implicit());
+    /// assert!(near_rando.get_account_type() == AccountType::NearImplicitAccount);
     /// ```
-    pub fn is_near_implicit(&self) -> bool {
-        self.0.len() == 64
-            && self
-                .as_bytes()
-                .iter()
-                .all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
-    }
-
     pub fn get_account_type(&self) -> AccountType {
-        if self.is_eth_implicit() {
+        if crate::validation::is_eth_implicit(self.as_str()) {
             return AccountType::EthImplicitAccount;
         }
-        if self.is_near_implicit() {
+        if crate::validation::is_near_implicit(self.as_str()) {
             return AccountType::NearImplicitAccount;
         }
         AccountType::NamedAccount
