@@ -49,8 +49,7 @@ impl AccountType {
     pub fn is_implicit(&self) -> bool {
         match &self {
             Self::NearImplicitAccount => true,
-            // TODO(eth-implicit) change to true later, see https://github.com/near/nearcore/issues/10018
-            Self::EthImplicitAccount => false,
+            Self::EthImplicitAccount => true,
             Self::NamedAccount => false,
         }
     }
