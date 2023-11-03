@@ -93,6 +93,20 @@ pub fn validate(account_id: &str) -> Result<(), ParseAccountError> {
     }
 }
 
+pub fn is_eth_implicit(account_id: &str) -> bool {
+    account_id.len() == 42
+        && account_id.starts_with("0x")
+        && account_id[2..].as_bytes().iter().all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
+}
+
+pub fn is_near_implicit(account_id: &str) -> bool {
+    account_id.len() == 64
+        && account_id
+            .as_bytes()
+            .iter()
+            .all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
