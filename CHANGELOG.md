@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-alpha.2](https://github.com/near/near-account-id-rs/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) - 2023-11-03
+
+### Other
+- `AccountType`, add `EthImplicitAccount` ([#14](https://github.com/near/near-account-id-rs/pull/14))
+
 ## 1.0.0-alpha.1 - 2023-10-24
 
 near-account-id was extracted from [nearcore](https://github.com/near/nearcore) as of 2023-08-01, and extended with the following features to reach stable 1.0.0 release.
