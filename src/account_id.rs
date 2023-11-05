@@ -20,6 +20,7 @@ use crate::{AccountIdRef, ParseAccountError};
 /// assert!("ƒelicia.near".parse::<AccountId>().is_err()); // (ƒ is not f)
 /// ```
 #[derive(Eq, Ord, Hash, Clone, Debug, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 pub struct AccountId(pub(crate) Box<str>);
 
 impl AccountId {
