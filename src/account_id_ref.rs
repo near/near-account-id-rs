@@ -27,6 +27,7 @@ use crate::{AccountId, ParseAccountError};
 /// [`Path`]: std::path::Path
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Hash)]
 #[cfg_attr(feature = "abi", derive(schemars::JsonSchema, BorshSchema))]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 pub struct AccountIdRef(pub(crate) str);
 
 /// Enum representing possible types of accounts.
@@ -420,6 +421,23 @@ mod tests {
     use crate::ParseErrorKind;
 
     use super::*;
+
+    #[test]
+    #[cfg(feature = "schemars")]
+    fn test_schemars() {
+        let schema = schemars::schema_for!(AccountIdRef);
+        let json_schema = serde_json::to_value(&schema).unwrap();
+        assert_eq!(
+            json_schema,
+            serde_json::json!({
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "description": "Account identifier. This is the human readable UTF-8 string which is used internally to index accounts on the network and their respective state.\n\nThis is the \"referenced\" version of the account ID. It is to [`AccountId`] what [`str`] is to [`String`], and works quite similarly to [`Path`]. Like with [`str`] and [`Path`], you can't have a value of type `AccountIdRef`, but you can have a reference like `&AccountIdRef` or `&mut AccountIdRef`.\n\nThis type supports zero-copy deserialization offered by [`serde`](https://docs.rs/serde/), but cannot do the same for [`borsh`](https://docs.rs/borsh/) since the latter does not support zero-copy.\n\n# Examples ``` use near_account_id::{AccountId, AccountIdRef}; use std::convert::{TryFrom, TryInto};\n\n// Construction let alice = AccountIdRef::new(\"alice.near\").unwrap(); assert!(AccountIdRef::new(\"invalid.\").is_err()); ```\n\n[`FromStr`]: std::str::FromStr [`Path`]: std::path::Path",
+                    "title": "AccountIdRef",
+                    "type": "string"
+                }
+            )
+        );
+    }
 
     #[test]
     fn test_err_kind_classification() {
