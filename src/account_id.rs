@@ -21,6 +21,7 @@ use crate::{AccountIdRef, ParseAccountError};
 /// ```
 #[derive(Eq, Ord, Hash, Clone, Debug, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "abi", derive(borsh::BorshSchema))]
 pub struct AccountId(pub(crate) Box<str>);
 
 impl AccountId {
