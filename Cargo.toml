@@ -16,7 +16,7 @@ internal_unstable = []
 
 [dependencies]
 arbitrary = {  version = "1", features = ["derive"] , optional = true }
-borsh = { version = "1.0.0", features = ["rc"], optional = true }
+borsh = { version = "1.0.0", features = ["rc", "unstable__schema"], optional = true }
 serde = { version = "1.0.119", features = ["alloc", "derive", "rc"], optional = true }
 
 [dev-dependencies]
