@@ -9,7 +9,7 @@ license = "MIT OR Apache-2.0"
 publish = true
 
 [features]
-default = []
+abi = ["borsh/unstable__schema", "schemars"]
 # This feature was introduced for legacy reasons for nearcore, and MUST be avoided
 # https://github.com/near/nearcore/pull/4621#issuecomment-892099860
 internal_unstable = []

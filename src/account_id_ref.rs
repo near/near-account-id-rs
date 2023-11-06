@@ -27,7 +27,6 @@ use crate::{AccountId, ParseAccountError};
 /// [`Path`]: std::path::Path
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Hash)]
 #[cfg_attr(feature = "abi", derive(schemars::JsonSchema, BorshSchema))]
-#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 pub struct AccountIdRef(pub(crate) str);
 
 /// Enum representing possible types of accounts.
