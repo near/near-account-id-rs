@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-alpha.3](https://github.com/near/near-account-id-rs/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) - 2023-11-06
+
+### Other
+- Add schemars support ([#17](https://github.com/near/near-account-id-rs/pull/17))
+
 ## [1.0.0-alpha.2](https://github.com/near/near-account-id-rs/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) - 2023-11-03
 
 ### Other
