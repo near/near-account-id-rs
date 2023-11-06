@@ -20,6 +20,8 @@ use crate::{AccountIdRef, ParseAccountError};
 /// assert!("ƒelicia.near".parse::<AccountId>().is_err()); // (ƒ is not f)
 /// ```
 #[derive(Eq, Ord, Hash, Clone, Debug, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "abi", derive(borsh::BorshSchema))]
 pub struct AccountId(pub(crate) Box<str>);
 
 impl AccountId {
@@ -370,5 +372,22 @@ mod tests {
                 expected_output.map(Into::<String>::into)
             );
         }
+    }
+    #[test]
+    #[cfg(feature = "schemars")]
+    fn test_schemars() {
+        let schema = schemars::schema_for!(AccountId);
+        let json_schema = serde_json::to_value(&schema).unwrap();
+        dbg!(&json_schema);
+        assert_eq!(
+            json_schema,
+            serde_json::json!({
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                    "title": "AccountId",
+                    "type": "string"
+                }
+            )
+        );
     }
 }
