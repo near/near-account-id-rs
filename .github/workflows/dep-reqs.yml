@@ -23,8 +23,8 @@ jobs:
     - uses: Swatinem/rust-cache@v1
     - name: Set up nightly
       run: |
-        rustup install nightly-2023-08-06
-        rustup default nightly-2023-08-06
+        rustup install nightly-2023-06-15
+        rustup default nightly-2023-06-15
     - name: Remove Cargo.lock
       run: rm Cargo.lock
     - name: Build
