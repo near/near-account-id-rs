@@ -93,8 +93,6 @@ impl AccountIdRef {
     /// For more information, read: <https://docs.near.org/docs/concepts/account#account-id-rules>
     pub(crate) fn new_unvalidated<S: AsRef<str> + ?Sized>(id: &S) -> &Self {
         let id = id.as_ref();
-        debug_assert!(crate::validation::validate(id).is_ok());
-
         // Safety: see `AccountIdRef::new`
         unsafe { &*(id as *const str as *const Self) }
     }
