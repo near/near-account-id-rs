@@ -93,6 +93,11 @@ impl AccountIdRef {
     /// For more information, read: <https://docs.near.org/docs/concepts/account#account-id-rules>
     pub(crate) fn new_unvalidated<S: AsRef<str> + ?Sized>(id: &S) -> &Self {
         let id = id.as_ref();
+        // In nearcore, due to legacy reasons, AccountId construction and validation are separated.
+        // In order to avoid protocol change, `internal_unstable` feature was implemented and it is
+        // expected that AccountId might be invalid and it will be explicitly validated at the
+        // later stage.
+        #[cfg(not(feature = "internal_unstable"))]
         debug_assert!(crate::validation::validate(id).is_ok());
 
         // Safety: see `AccountIdRef::new`
