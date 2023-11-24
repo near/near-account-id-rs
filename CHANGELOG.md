@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-alpha.4](https://github.com/near/near-account-id-rs/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) - 2023-11-24
+
+### Fixed
+- Remove account_id validation from `new_unvalidated()` when `internal_unstable` feature is enabled (required by nearcore) ([#20](https://github.com/near/near-account-id-rs/pull/20))
+
 ## [1.0.0-alpha.3](https://github.com/near/near-account-id-rs/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) - 2023-11-06
 
 ### Other
