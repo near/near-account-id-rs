@@ -231,23 +231,27 @@ impl AccountIdRef {
     }
 
     /// Returns parent's account id reference
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// use near_account_id::AccountIdRef;
-    /// 
-    /// let alice: &AccountIdRef = AccountIdRef::new("alice.near").unwrap();
+    ///
+    /// let alice: &AccountIdRef = AccountIdRef::new_or_panic("alice.near");
     /// let parent: &AccountIdRef = alice.get_parent_account_id().unwrap();
-    /// 
+    ///
     /// assert!(alice.is_sub_account_of(parent));
-    /// 
-    /// let near: &AccountIdRef = AccountIdRef::new("near").unwrap();
-    /// 
+    ///
+    /// let near: &AccountIdRef = AccountIdRef::new_or_panic("near");
+    ///
     /// assert!(near.get_parent_account_id().is_none());
+    ///
+    /// let implicit: &AccountIdRef = AccountIdRef::new_or_panic("248e104d1d4764d713c4211c13808c8fc887869c580f4178e60538ac5c2a0b26");
+    ///
+    /// assert!(implicit.get_parent_account_id().is_none());
     /// ```
     pub fn get_parent_account_id(&self) -> Option<&AccountIdRef> {
         let parent_str = self.as_str().split_once('.')?.1;
-        AccountIdRef::new(parent_str).ok()
+        Some(AccountIdRef::new_unvalidated(parent_str))
     }
 }
 
