@@ -229,6 +229,29 @@ impl AccountIdRef {
     pub const fn len(&self) -> usize {
         self.0.len()
     }
+
+    /// Returns parent's account id reference
+    /// 
+    /// ## Examples
+    /// ```
+    /// use near_account_id::AccountIdRef;
+    /// 
+    /// let alice: &AccountIdRef = AccountIdRef::new("alice.near").unwrap();
+    /// let parent: &AccountIdRef = alice.get_parent_account_id().unwrap();
+    /// 
+    /// assert!(alice.is_sub_account_of(parent));
+    /// 
+    /// let near: &AccountIdRef = AccountIdRef::new("near").unwrap();
+    /// 
+    /// assert!(near.get_parent_account_id().is_none());
+    /// ```
+    pub fn get_parent_account_id(&self) -> Option<&AccountIdRef> {
+        if matches!(self.get_account_type(), AccountType::EthImplicitAccount | AccountType::NearImplicitAccount) {
+            return None;
+        }
+        let parent_str = self.as_str().split_once('.')?.1;
+        AccountIdRef::new(parent_str).ok()
+    }
 }
 
 impl std::fmt::Display for AccountIdRef {
