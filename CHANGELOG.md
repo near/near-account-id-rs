@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.0.0 - 2023-12-22
+
+This is the first stable release of near-account-id crate!
+
+`AccountId` and `AccountIdRef` are two main types of this crate that have same relation as `String` and `str` in standard library of Rust.
+
+AccountId guarantees to hold a valid NEAR account id (unless users explicitly opt-in for the unvalidated constructors feature and break this promise).
+
+See all the changes listed in alpha releases below to learn about `AccountIdRef` and various new helper methods.
+
+### Added
+- Add `get_parent_account_id` method ([#24](https://github.com/near/near-account-id-rs/pull/24))
+
 ## [1.0.0-alpha.4](https://github.com/near/near-account-id-rs/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) - 2023-11-24
 
 ### Fixed
