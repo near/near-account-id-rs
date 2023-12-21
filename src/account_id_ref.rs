@@ -246,9 +246,6 @@ impl AccountIdRef {
     /// assert!(near.get_parent_account_id().is_none());
     /// ```
     pub fn get_parent_account_id(&self) -> Option<&AccountIdRef> {
-        if matches!(self.get_account_type(), AccountType::EthImplicitAccount | AccountType::NearImplicitAccount) {
-            return None;
-        }
         let parent_str = self.as_str().split_once('.')?.1;
         AccountIdRef::new(parent_str).ok()
     }
