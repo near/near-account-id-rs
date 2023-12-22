@@ -1,6 +1,6 @@
 [package]
 name = "near-account-id"
-version = "1.0.0-alpha.4"
+version = "1.0.0"
 authors = ["Near Inc <hello@nearprotocol.com>"]
 edition = "2021"
 description = "This crate contains the Account ID primitive and its validation facilities"
