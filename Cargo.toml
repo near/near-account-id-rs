@@ -9,7 +9,7 @@ license = "MIT OR Apache-2.0"
 publish = true
 
 [features]
-abi = ["borsh/unstable__schema", "schemars"]
+abi = ["borsh/unstable__schema"]
 # This feature was introduced for legacy reasons for nearcore, and MUST be avoided
 # https://github.com/near/nearcore/pull/4621#issuecomment-892099860
 internal_unstable = []
@@ -19,7 +19,7 @@ default = []
 arbitrary = {  version = "1", features = ["derive"] , optional = true }
 borsh = { version = "1.0.0", features = ["rc"], optional = true }
 serde = { version = "1.0.119", features = ["alloc", "derive", "rc"], optional = true }
-schemars = { version = "0.8", optional = true }
+schemars = { version = "0.8.21" }
 
 [dev-dependencies]
 bolero = ">=0.8.0, <0.10.0"
