@@ -37,6 +37,7 @@
 
 mod errors;
 
+mod schemars_exports;
 mod account_id;
 mod account_id_ref;
 #[cfg(feature = "borsh")]
