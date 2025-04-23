@@ -1,6 +1,8 @@
 use std::{borrow::Cow, fmt, ops::Deref, str::FromStr};
 
 use crate::{AccountIdRef, ParseAccountError};
+#[cfg(feature = "schemars")]
+use crate::schemars_exports::schemars;
 
 /// NEAR Account Identifier.
 ///

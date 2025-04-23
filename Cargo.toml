@@ -9,17 +9,22 @@ license = "MIT OR Apache-2.0"
 publish = true
 
 [features]
-abi = ["borsh/unstable__schema", "schemars"]
+abi = ["borsh/unstable__schema", "schemars-stable"]
+abi-alpha = ["borsh/unstable__schema", "schemars-alpha"]
 # This feature was introduced for legacy reasons for nearcore, and MUST be avoided
 # https://github.com/near/nearcore/pull/4621#issuecomment-892099860
 internal_unstable = []
 default = []
+schemars = []
+schemars-stable = ["schemars", "dep:schemars-stable"]
+schemars-alpha = ["schemars", "dep:schemars-alpha"]
 
 [dependencies]
 arbitrary = {  version = "1", features = ["derive"] , optional = true }
 borsh = { version = "1.0.0", features = ["rc"], optional = true }
 serde = { version = "1.0.119", features = ["alloc", "derive", "rc"], optional = true }
-schemars = { version = "0.8", optional = true }
+schemars-stable = { version = "0.8.22", optional = true, package = "schemars" }
+schemars-alpha = { version = "1.0.0-alpha.17", optional = true, package = "schemars" }
 
 [dev-dependencies]
 bolero = ">=0.8.0, <0.10.0"
