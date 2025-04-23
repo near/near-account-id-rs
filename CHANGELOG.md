@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0](https://github.com/near/near-account-id-rs/compare/v1.0.0...v1.1.0) - 2025-04-23
+
+### Added
+
+- Added optional schemars-alpha feature to support (schemars 1.0-alpha releases) ([#28](https://github.com/near/near-account-id-rs/pull/28))
+
 ## 1.0.0 - 2023-12-22
 
 This is the first stable release of near-account-id crate!
