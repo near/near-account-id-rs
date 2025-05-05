@@ -21,7 +21,7 @@ schemars-alpha = ["schemars", "dep:schemars-alpha"]
 
 [dependencies]
 arbitrary = {  version = "1", features = ["derive"] , optional = true }
-borsh = { version = "1.0.0", optional = true }
+borsh = { version = "1.5.7", optional = true }
 serde = { version = "1.0.119", features = ["alloc", "derive", "rc"], optional = true }
 schemars-stable = { version = "0.8.22", optional = true, package = "schemars" }
 schemars-alpha = { version = "1.0.0-alpha.17", optional = true, package = "schemars" }
