@@ -37,11 +37,11 @@
 
 mod errors;
 
-mod schemars_exports;
 mod account_id;
 mod account_id_ref;
 #[cfg(feature = "borsh")]
 mod borsh;
+mod schemars_exports;
 #[cfg(feature = "serde")]
 mod serde;
 #[cfg(test)]
