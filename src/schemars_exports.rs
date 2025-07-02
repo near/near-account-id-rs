@@ -1,5 +1,5 @@
-#[cfg(all(feature = "schemars-version-one", not(feature = "schemars-stable")))]
-pub use schemars_version_one as schemars;
+#[cfg(all(feature = "schemars-v1", not(feature = "schemars-stable")))]
+pub use schemars_v1 as schemars;
 
 #[cfg(feature = "schemars-stable")]
 pub use schemars_stable as schemars;
