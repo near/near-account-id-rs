@@ -11,8 +11,8 @@ publish = true
 [features]
 abi = ["borsh/unstable__schema", "schemars-stable"]
 abi-alpha = ["borsh/unstable__schema", "schemars-alpha"]
-abi-v1 = ["borsh/unstable__schema", "schemars-v1"]
-abi-v0_8 = ["borsh/unstable__schema", "schemars-v0_8"]
+abi-with-schemars-v1 = ["borsh/unstable__schema", "schemars-v1"]
+abi-with-schemars-v0_8 = ["borsh/unstable__schema", "schemars-v0_8"]
 # This feature was introduced for legacy reasons for nearcore, and MUST be avoided
 # https://github.com/near/nearcore/pull/4621#issuecomment-892099860
 internal_unstable = []
