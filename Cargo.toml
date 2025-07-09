@@ -20,8 +20,8 @@ default = []
 schemars = []
 schemars-v1 = ["schemars", "dep:schemars-v1"]
 schemars-v0_8 = ["schemars", "dep:schemars-v0_8"] 
-schemars-stable = ["schemars", "dep:schemars-stable"]
-schemars-alpha = ["schemars", "dep:schemars-alpha"]
+schemars-alpha = ["schemars", "dep:schemars-v1"]
+schemars-stable = ["schemars", "dep:schemars-v0_8"]
 
 [dependencies]
 arbitrary = {  version = "1", features = ["derive"] , optional = true }
@@ -29,10 +29,6 @@ borsh = { version = "1.0.0", optional = true }
 serde = { version = "1.0.119", features = ["alloc", "derive", "rc"], optional = true }
 schemars-v1 = { version = "1.0.3", optional = true, package = "schemars" }
 schemars-v0_8 = { version = "0.8.22", optional = true, package = "schemars" }
-# Deprecated
-schemars-stable = { version = "0.8.22", optional = true, package = "schemars" }
-# Deprecated
-schemars-alpha = { version = "1.0.0-alpha.17", optional = true, package = "schemars" }
 
 [dev-dependencies]
 bolero = ">=0.8.0, <0.10.0"
