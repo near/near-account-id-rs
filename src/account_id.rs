@@ -376,7 +376,25 @@ mod tests {
         }
     }
     #[test]
-    #[cfg(feature = "schemars")]
+    #[cfg(feature = "schemars-v1")]
+    fn test_schemars() {
+        let schema = schemars::schema_for!(AccountId);
+        let json_schema = serde_json::to_value(&schema).unwrap();
+        dbg!(&json_schema);
+        assert_eq!(
+            json_schema,
+            serde_json::json!({
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n```\nuse near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f)\n```",
+                    "title": "AccountId",
+                    "type": "string"
+                }
+            )
+        );
+    }
+
+    #[test]
+    #[cfg(feature = "schemars-v0_8")]
     fn test_schemars() {
         let schema = schemars::schema_for!(AccountId);
         let json_schema = serde_json::to_value(&schema).unwrap();
