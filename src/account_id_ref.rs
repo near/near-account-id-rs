@@ -454,10 +454,29 @@ mod tests {
     use super::*;
 
     #[test]
-    #[cfg(feature = "schemars")]
+    #[cfg(feature = "schemars-v1")]
     fn test_schemars() {
         let schema = schemars::schema_for!(AccountIdRef);
         let json_schema = serde_json::to_value(&schema).unwrap();
+        dbg!(&json_schema);
+        assert_eq!(
+            json_schema,
+            serde_json::json!({
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "description": "Account identifier. This is the human readable UTF-8 string which is used internally to index\naccounts on the network and their respective state.\n\nThis is the \"referenced\" version of the account ID. It is to [`AccountId`] what [`str`] is to [`String`],\nand works quite similarly to [`Path`]. Like with [`str`] and [`Path`], you\ncan't have a value of type `AccountIdRef`, but you can have a reference like `&AccountIdRef` or\n`&mut AccountIdRef`.\n\nThis type supports zero-copy deserialization offered by [`serde`](https://docs.rs/serde/), but cannot\ndo the same for [`borsh`](https://docs.rs/borsh/) since the latter does not support zero-copy.\n\n# Examples\n```\nuse near_account_id::{AccountId, AccountIdRef};\nuse std::convert::{TryFrom, TryInto};\n\n// Construction\nlet alice = AccountIdRef::new(\"alice.near\").unwrap();\nassert!(AccountIdRef::new(\"invalid.\").is_err());\n```\n\n[`FromStr`]: std::str::FromStr\n[`Path`]: std::path::Path",
+                    "title": "AccountIdRef",
+                    "type": "string"
+                }
+            )
+        );
+    }
+
+    #[test]
+    #[cfg(feature = "schemars-v0_8")]
+    fn test_schemars() {
+        let schema = schemars::schema_for!(AccountIdRef);
+        let json_schema = serde_json::to_value(&schema).unwrap();
+        dbg!(&json_schema);
         assert_eq!(
             json_schema,
             serde_json::json!({
