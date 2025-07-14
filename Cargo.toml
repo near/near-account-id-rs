@@ -15,7 +15,7 @@ abi = ["borsh/unstable__schema", "schemars-v0_8"]
 # https://github.com/near/nearcore/pull/4621#issuecomment-892099860
 internal_unstable = []
 default = []
-schemars = []
+schemars = ["dep:schemars-v0_8"]
 schemars-v1 = ["schemars", "dep:schemars-v1"]
 schemars-v0_8 = ["schemars", "dep:schemars-v0_8"] 
 schemars-alpha = ["schemars-v1"]  # deprecated
