@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.3](https://github.com/near/near-account-id-rs/compare/v1.1.2...v1.1.3) - 2025-07-14
+
+### Other
+
+- Add schemars-v1 and schemars-v0_8 features, reverts schemars-stable to 0.8.22 ([#38](https://github.com/near/near-account-id-rs/pull/38))
+
 ## [1.1.2](https://github.com/near/near-account-id-rs/compare/v1.1.1...v1.1.2) - 2025-07-03
 
 ### Other
