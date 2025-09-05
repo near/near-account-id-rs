@@ -1,7 +1,5 @@
 use std::borrow::Cow;
 
-#[cfg(feature = "schemars")]
-use crate::schemars_exports::schemars;
 use crate::{AccountId, ParseAccountError};
 
 /// Account identifier. This is the human readable UTF-8 string which is used internally to index
@@ -28,7 +26,7 @@ use crate::{AccountId, ParseAccountError};
 /// [`FromStr`]: std::str::FromStr
 /// [`Path`]: std::path::Path
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Hash)]
-#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schemars-v0_8", derive(schemars_v0_8::JsonSchema))]
 #[cfg_attr(feature = "abi", derive(borsh::BorshSchema))]
 pub struct AccountIdRef(pub(crate) str);
 
