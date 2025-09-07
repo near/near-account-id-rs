@@ -1,4 +1,18 @@
 # Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.2.0](https://github.com/near/near-account-id-rs/compare/v1.1.3...v1.2.0) - 2025-09-07
+
+### Added
+
+- Support both schemars versions at once (without conflicts) ([#40](https://github.com/near/near-account-id-rs/pull/40))
+# Changelog
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
