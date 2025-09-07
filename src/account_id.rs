@@ -1,7 +1,5 @@
 use std::{borrow::Cow, fmt, ops::Deref, str::FromStr};
 
-#[cfg(feature = "schemars")]
-use crate::schemars_exports::schemars;
 use crate::{AccountIdRef, ParseAccountError};
 
 /// NEAR Account Identifier.
@@ -22,7 +20,6 @@ use crate::{AccountIdRef, ParseAccountError};
 /// assert!("ƒelicia.near".parse::<AccountId>().is_err()); // (ƒ is not f)
 /// ```
 #[derive(Eq, Ord, Hash, Clone, Debug, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "abi", derive(borsh::BorshSchema))]
 pub struct AccountId(pub(crate) Box<str>);
 
@@ -328,6 +325,45 @@ impl<'a> From<Cow<'a, AccountIdRef>> for AccountId {
     }
 }
 
+#[cfg(feature = "schemars-v0_8")]
+impl schemars_v0_8::JsonSchema for AccountId {
+    fn is_referenceable() -> bool {
+        false
+    }
+
+    fn schema_name() -> String {
+        "AccountId".to_string()
+    }
+
+    fn json_schema(_: &mut schemars_v0_8::gen::SchemaGenerator) -> schemars_v0_8::schema::Schema {
+        use schemars_v0_8::schema::{InstanceType, Metadata, Schema, SchemaObject, SingleOrVec};
+        Schema::Object(SchemaObject {
+            instance_type: Some(SingleOrVec::Single(Box::new(InstanceType::String))),
+            metadata: Some(Box::new(Metadata {
+                description: Some("NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```".to_string()),
+                ..Default::default()
+            })),
+            ..Default::default()
+        })
+    }
+}
+
+#[cfg(feature = "schemars-v1")]
+impl schemars_v1::JsonSchema for AccountId {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "AccountId".to_string().into()
+    }
+
+    fn json_schema(_: &mut schemars_v1::SchemaGenerator) -> schemars_v1::Schema {
+        schemars_v1::json_schema!({
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n```\nuse near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f)\n```",
+            "title": "AccountId",
+            "type": "string"
+        })
+    }
+}
+
 #[cfg(feature = "arbitrary")]
 impl<'a> arbitrary::Arbitrary<'a> for AccountId {
     fn size_hint(depth: usize) -> (usize, Option<usize>) {
@@ -377,8 +413,8 @@ mod tests {
     }
     #[test]
     #[cfg(feature = "schemars-v1")]
-    fn test_schemars() {
-        let schema = schemars::schema_for!(AccountId);
+    fn test_schemars_v1() {
+        let schema = schemars_v1::schema_for!(AccountId);
         let json_schema = serde_json::to_value(&schema).unwrap();
         dbg!(&json_schema);
         assert_eq!(
@@ -395,8 +431,8 @@ mod tests {
 
     #[test]
     #[cfg(feature = "schemars-v0_8")]
-    fn test_schemars() {
-        let schema = schemars::schema_for!(AccountId);
+    fn test_schemars_v0_8() {
+        let schema = schemars_v0_8::schema_for!(AccountId);
         let json_schema = serde_json::to_value(&schema).unwrap();
         dbg!(&json_schema);
         assert_eq!(

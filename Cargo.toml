@@ -9,15 +9,14 @@ license = "MIT OR Apache-2.0"
 publish = true
 
 [features]
-__all-non-conflicting-features = ["internal_unstable", "default", "arbitrary", "borsh", "serde"]
 abi = ["borsh/unstable__schema", "schemars-v0_8"]
 # This feature was introduced for legacy reasons for nearcore, and MUST be avoided
 # https://github.com/near/nearcore/pull/4621#issuecomment-892099860
 internal_unstable = []
 default = []
-schemars = []
-schemars-v1 = ["schemars", "dep:schemars-v1"]
-schemars-v0_8 = ["schemars", "dep:schemars-v0_8"] 
+schemars = ["schemars-v0_8"]
+schemars-v1 = ["dep:schemars-v1"]
+schemars-v0_8 = ["dep:schemars-v0_8"] 
 schemars-alpha = ["schemars-v1"]  # deprecated
 schemars-stable = ["schemars-v0_8"]  # deprecated 
 

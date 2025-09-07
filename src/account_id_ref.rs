@@ -1,7 +1,5 @@
 use std::borrow::Cow;
 
-#[cfg(feature = "schemars")]
-use crate::schemars_exports::schemars;
 use crate::{AccountId, ParseAccountError};
 
 /// Account identifier. This is the human readable UTF-8 string which is used internally to index
@@ -28,7 +26,6 @@ use crate::{AccountId, ParseAccountError};
 /// [`FromStr`]: std::str::FromStr
 /// [`Path`]: std::path::Path
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Hash)]
-#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "abi", derive(borsh::BorshSchema))]
 pub struct AccountIdRef(pub(crate) str);
 
@@ -417,6 +414,45 @@ impl<'a> From<&'a AccountIdRef> for Cow<'a, AccountIdRef> {
     }
 }
 
+#[cfg(feature = "schemars-v0_8")]
+impl schemars_v0_8::JsonSchema for AccountIdRef {
+    fn is_referenceable() -> bool {
+        false
+    }
+
+    fn schema_name() -> String {
+        "AccountIdRef".to_string()
+    }
+
+    fn json_schema(_: &mut schemars_v0_8::gen::SchemaGenerator) -> schemars_v0_8::schema::Schema {
+        use schemars_v0_8::schema::{InstanceType, Metadata, Schema, SchemaObject, SingleOrVec};
+        Schema::Object(SchemaObject {
+            instance_type: Some(SingleOrVec::Single(Box::new(InstanceType::String))),
+            metadata: Some(Box::new(Metadata {
+                description: Some("Account identifier. This is the human readable UTF-8 string which is used internally to index accounts on the network and their respective state.\n\nThis is the \"referenced\" version of the account ID. It is to [`AccountId`] what [`str`] is to [`String`], and works quite similarly to [`Path`]. Like with [`str`] and [`Path`], you can't have a value of type `AccountIdRef`, but you can have a reference like `&AccountIdRef` or `&mut AccountIdRef`.\n\nThis type supports zero-copy deserialization offered by [`serde`](https://docs.rs/serde/), but cannot do the same for [`borsh`](https://docs.rs/borsh/) since the latter does not support zero-copy.\n\n# Examples ``` use near_account_id::{AccountId, AccountIdRef}; use std::convert::{TryFrom, TryInto};\n\n// Construction let alice = AccountIdRef::new(\"alice.near\").unwrap(); assert!(AccountIdRef::new(\"invalid.\").is_err()); ```\n\n[`FromStr`]: std::str::FromStr [`Path`]: std::path::Path".to_string()),
+                ..Default::default()
+            })),
+            ..Default::default()
+        })
+    }
+}
+
+#[cfg(feature = "schemars-v1")]
+impl schemars_v1::JsonSchema for AccountIdRef {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "AccountIdRef".to_string().into()
+    }
+
+    fn json_schema(_: &mut schemars_v1::SchemaGenerator) -> schemars_v1::Schema {
+        schemars_v1::json_schema!({
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "description": "Account identifier. This is the human readable UTF-8 string which is used internally to index\naccounts on the network and their respective state.\n\nThis is the \"referenced\" version of the account ID. It is to [`AccountId`] what [`str`] is to [`String`],\nand works quite similarly to [`Path`]. Like with [`str`] and [`Path`], you\ncan't have a value of type `AccountIdRef`, but you can have a reference like `&AccountIdRef` or\n`&mut AccountIdRef`.\n\nThis type supports zero-copy deserialization offered by [`serde`](https://docs.rs/serde/), but cannot\ndo the same for [`borsh`](https://docs.rs/borsh/) since the latter does not support zero-copy.\n\n# Examples\n```\nuse near_account_id::{AccountId, AccountIdRef};\nuse std::convert::{TryFrom, TryInto};\n\n// Construction\nlet alice = AccountIdRef::new(\"alice.near\").unwrap();\nassert!(AccountIdRef::new(\"invalid.\").is_err());\n```\n\n[`FromStr`]: std::str::FromStr\n[`Path`]: std::path::Path",
+            "title": "AccountIdRef",
+            "type": "string"
+        })
+    }
+}
+
 #[cfg(feature = "arbitrary")]
 impl<'a> arbitrary::Arbitrary<'a> for &'a AccountIdRef {
     fn size_hint(_depth: usize) -> (usize, Option<usize>) {
@@ -455,8 +491,8 @@ mod tests {
 
     #[test]
     #[cfg(feature = "schemars-v1")]
-    fn test_schemars() {
-        let schema = schemars::schema_for!(AccountIdRef);
+    fn test_schemars_v1() {
+        let schema = schemars_v1::schema_for!(AccountIdRef);
         let json_schema = serde_json::to_value(&schema).unwrap();
         dbg!(&json_schema);
         assert_eq!(
@@ -473,8 +509,8 @@ mod tests {
 
     #[test]
     #[cfg(feature = "schemars-v0_8")]
-    fn test_schemars() {
-        let schema = schemars::schema_for!(AccountIdRef);
+    fn test_schemars_v0_8() {
+        let schema = schemars_v0_8::schema_for!(AccountIdRef);
         let json_schema = serde_json::to_value(&schema).unwrap();
         dbg!(&json_schema);
         assert_eq!(
