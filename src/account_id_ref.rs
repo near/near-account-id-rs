@@ -207,8 +207,8 @@ impl AccountIdRef {
         if crate::validation::is_near_implicit(self.as_str()) {
             return AccountType::NearImplicitAccount;
         }
-        if crate::validation::is_deterministic_id_implicit(self.as_str()) {
-            return AccountType::NearImplicitAccount;
+        if crate::validation::is_near_deterministic(self.as_str()) {
+            return AccountType::NearDeterministicAccount;
         }
         AccountType::NamedAccount
     }

@@ -102,7 +102,7 @@ pub fn is_eth_implicit(account_id: &str) -> bool {
             .all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
 }
 
-pub fn is_deterministic_id_implicit(account_id: &str) -> bool {
+pub fn is_near_deterministic(account_id: &str) -> bool {
     account_id.len() == 42
         && account_id.starts_with("0s")
         && account_id[2..]
