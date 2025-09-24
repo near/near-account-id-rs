@@ -835,6 +835,49 @@ mod tests {
     }
 
     #[test]
+    fn test_is_account_id_near_deterministic() {
+        let valid_near_deterministic_account_ids = &[
+            "0s0000000000000000000000000000000000000000",
+            "0s6174617461746174617461746174617461746174",
+            "0s0123456789abcdef0123456789abcdef01234567",
+            "0sffffffffffffffffffffffffffffffffffffffff",
+            "0s20782e20662e64666420482123494b6b6c677573",
+        ];
+        for valid_account_id in valid_near_deterministic_account_ids {
+            assert!(
+                matches!(
+                    valid_account_id.parse::<AccountId>(),
+                    Ok(account_id) if account_id.get_account_type() == AccountType::NearDeterministicAccount
+                ),
+                "Account ID {} should be valid 42-len hex, starting with 0s",
+                valid_account_id
+            );
+        }
+
+        let invalid_near_deterministic_account_ids = &[
+            "00s000000000000000000000000000000000000000",
+            "0s000000000000000000000000000000000000000",
+            "0s00000000000000000000000000000000000000.0",
+            "04b794f5ea0ba39494ce839613fffba74279579268",
+            "0x000000000000000000000000000000000000000",
+            "alice.near",
+            "0s.alice.near",
+            "0s.match_total_len_42_with_a_named_account",
+        ];
+        for invalid_account_id in invalid_near_deterministic_account_ids {
+            assert!(
+                !matches!(
+                    invalid_account_id.parse::<AccountId>(),
+                    Ok(account_id) if account_id.get_account_type() == AccountType::EthImplicitAccount
+                ),
+                "Account ID {} is not a NEAR deterministic account",
+                invalid_account_id
+            );
+        }
+    }
+
+
+    #[test]
     #[cfg(feature = "arbitrary")]
     fn test_arbitrary() {
         let corpus = [
