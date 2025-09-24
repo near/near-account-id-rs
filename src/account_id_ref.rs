@@ -876,7 +876,6 @@ mod tests {
         }
     }
 
-
     #[test]
     #[cfg(feature = "arbitrary")]
     fn test_arbitrary() {
