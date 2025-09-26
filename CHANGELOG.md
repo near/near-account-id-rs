@@ -7,15 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.0](https://github.com/near/near-account-id-rs/compare/v1.1.4...v1.2.0) - 2025-09-26
+## [2.0.0](https://github.com/near/near-account-id-rs/compare/v1.1.4...v2.0.0) - 2025-09-26
 
 ### Added
 
-- NearDeterministicAccount ([#42](https://github.com/near/near-account-id-rs/pull/42))
-
-### Added
-
-- BREAKING: New variant `NearDeterministicAccount` in `AccountType` as part of [NEP-616](https://github.com/near/NEPs/pull/616) implementation. (#42)
+- BREAKING: New variant `NearDeterministicAccount` in `AccountType` as part of [NEP-616](https://github.com/near/NEPs/pull/616) implementation. ([#42](https://github.com/near/near-account-id-rs/pull/42))
 
 ### Changed
 
