@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - BREAKING: New variant `NearDeterministicAccount` in `AccountType` as part of [NEP-616](https://github.com/near/NEPs/pull/616) implementation. (#42)
 
+### Changed
+
+- `AccountType::is_implicit()` will return `true` for the new account type `NearDeterministicAccount`. Callers should check their assumptions on what this method means.
+
 ## [1.1.4](https://github.com/near/near-account-id-rs/compare/v1.1.3...v1.1.4) - 2025-09-07
 
 ### Added
