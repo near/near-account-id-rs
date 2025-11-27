@@ -41,6 +41,7 @@ mod account_id;
 mod account_id_ref;
 #[cfg(feature = "borsh")]
 mod borsh;
+mod into_account_id;
 #[cfg(feature = "serde")]
 mod serde;
 #[cfg(test)]
@@ -50,3 +51,4 @@ mod validation;
 pub use account_id::AccountId;
 pub use account_id_ref::{AccountIdRef, AccountType};
 pub use errors::{ParseAccountError, ParseErrorKind};
+pub use into_account_id::IntoAccountId;
