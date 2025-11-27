@@ -51,4 +51,4 @@ mod validation;
 pub use account_id::AccountId;
 pub use account_id_ref::{AccountIdRef, AccountType};
 pub use errors::{ParseAccountError, ParseErrorKind};
-pub use into_account_id::IntoAccountId;
+pub use into_account_id::TryIntoAccountId;
