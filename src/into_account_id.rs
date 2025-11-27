@@ -19,7 +19,7 @@ use std::ops::Deref;
 /// # Examples
 ///
 /// ```
-/// use near_account_id::{AccountId, AccountIdRef};
+/// use near_account_id::{AccountId, AccountIdRef, IntoAccountId};
 ///
 /// fn process_account(account: impl IntoAccountId) {
 ///     let account_id: AccountId = account.into_account_id();
