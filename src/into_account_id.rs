@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 /// A trait for types that can be converted into an [`AccountId`](crate::AccountId)
 ///
 /// This trait allows functions to accept account IDs in multiple forms without
@@ -51,7 +49,7 @@ impl IntoAccountId for crate::AccountId {
 
 impl IntoAccountId for &crate::AccountId {
     fn into_account_id(self) -> crate::AccountId {
-        self.deref().to_owned()
+        self.to_owned()
     }
 }
 
@@ -74,23 +72,23 @@ mod tests {
     fn test_owned_account_id() {
         let account: AccountId = "bob.near".parse().unwrap();
         let result = accept_account(account);
-        assert_eq!(result.as_str(), "bob.near");
+        assert_eq!(result, "bob.near");
     }
 
     #[test]
     fn test_borrowed_account_id() {
         let account: AccountId = "bob.near".parse().unwrap();
         let result = accept_account(&account);
-        assert_eq!(result.as_str(), "bob.near");
+        assert_eq!(result, "bob.near");
         // Original still exists
-        assert_eq!(account.as_str(), "bob.near");
+        assert_eq!(account, "bob.near");
     }
 
     #[test]
     fn test_account_id_ref() {
         let account_ref = AccountIdRef::new("bob.near").unwrap();
         let result = accept_account(account_ref);
-        assert_eq!(result.as_str(), "bob.near");
+        assert_eq!(result, "bob.near");
     }
 
     #[test]
@@ -100,7 +98,7 @@ mod tests {
         let ptr_before = account.as_str().as_ptr();
 
         let result = accept_account(account);
-        let ptr_after = result.as_str().as_ptr();
+        let ptr_after = result.0.as_ptr();
 
         // Same pointer = no allocation happened
         assert_eq!(ptr_before, ptr_after);
