@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 /// A trait for types that can be converted into an [`AccountId`](crate::AccountId)
 ///
 /// This trait allows functions to accept account IDs in multiple forms without
@@ -115,7 +113,7 @@ impl TryIntoAccountId for &str {
 
 impl TryIntoAccountId for String {
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
-        crate::AccountId::try_from(self)
+        self.try_into()
     }
 
     fn as_str(&self) -> &str {
@@ -123,9 +121,9 @@ impl TryIntoAccountId for String {
     }
 }
 
-impl TryIntoAccountId for Cow<'_, crate::AccountIdRef> {
+impl TryIntoAccountId for std::borrow::Cow<'_, crate::AccountIdRef> {
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
-        Ok(self.into_owned())
+        Ok(self.into())
     }
 
     fn as_str(&self) -> &str {

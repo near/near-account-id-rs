@@ -464,20 +464,11 @@ mod tests {
         );
     }
 
-    fn account_id_consumer<E>(
-        account_id: impl TryInto<AccountId, Error = E>,
-    ) -> Result<AccountId, ParseAccountError>
-    where
-        E: Into<ParseAccountError>,
-    {
-        account_id.try_into().map_err(|e| e.into())
+    fn account_id_consumer(
+        account_id: impl TryIntoAccountId,
+    ) -> Result<AccountId, ParseAccountError> {
+        account_id.try_into_account_id()
     }
-
-    // fn account_id_consumer(
-    //     account_id: impl TryIntoAccountId,
-    // ) -> Result<AccountId, ParseAccountError> {
-    //     account_id.try_into_account_id()
-    // }
 
     #[test]
     fn test_try_into() {
