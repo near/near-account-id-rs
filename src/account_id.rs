@@ -169,9 +169,24 @@ impl TryFrom<String> for AccountId {
     }
 }
 
+impl TryFrom<&str> for AccountId {
+    type Error = ParseAccountError;
+
+    fn try_from(account_id: &str) -> Result<Self, Self::Error> {
+        crate::validation::validate(account_id)?;
+        Ok(Self(account_id.into()))
+    }
+}
+
 impl fmt::Display for AccountId {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Display::fmt(&self.0, f)
+    }
+}
+
+impl From<&AccountId> for AccountId {
+    fn from(value: &AccountId) -> Self {
+        value.to_owned()
     }
 }
 
@@ -381,6 +396,8 @@ impl<'a> arbitrary::Arbitrary<'a> for AccountId {
 
 #[cfg(test)]
 mod tests {
+    use crate::{ParseErrorKind, TryIntoAccountId};
+
     #[allow(unused_imports)]
     use super::*;
 
@@ -445,5 +462,74 @@ mod tests {
                 }
             )
         );
+    }
+
+    // Fails, bc of error missmatch for Into<AccountId>, which gives TryInto<AccountId, Infailable>
+    // fn account_id_consumer(
+    //     account_id: impl TryInto<AccountId, Error = ParseAccountError>,
+    // ) -> Result<AccountId, ParseAccountError> {
+    //     account_id.try_into()
+    // }
+
+    // Compiles, but canont predict what error you get from outside
+    // fn account_id_consumer<E>(
+    //     account_id: impl TryInto<AccountId, Error = E>,
+    // ) -> Result<AccountId, E> {
+    //     account_id.try_into()
+    // }
+
+    fn account_id_consumer(
+        account_id: impl TryIntoAccountId,
+    ) -> Result<AccountId, ParseAccountError> {
+        account_id.try_into_account_id()
+    }
+
+    #[test]
+    fn test_try_into() {
+        let result = account_id_consumer("");
+        assert!(result.is_err());
+        assert_eq!(result.err().unwrap().kind, ParseErrorKind::TooShort);
+
+        let result = account_id_consumer("q");
+        assert!(result.is_err());
+        assert_eq!(result.err().unwrap().kind, ParseErrorKind::TooShort);
+
+        let result = account_id_consumer("near");
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "near");
+
+        let result = account_id_consumer("alice.near");
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "alice.near");
+
+        let result = account_id_consumer(String::from("alice.near"));
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "alice.near");
+
+        // AccountId tests
+        let account_id: AccountId = "bob.near".parse().unwrap();
+
+        let result = account_id_consumer(&account_id);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "bob.near");
+
+        let result = account_id_consumer(Cow::from(&account_id));
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "bob.near");
+
+        let result = account_id_consumer(account_id.clone());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "bob.near");
+
+        // AccountIdRef tests
+        let account_id_ref: &AccountIdRef = AccountIdRef::new_or_panic("tom.near");
+
+        let result = account_id_consumer(account_id_ref);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "tom.near");
+
+        let result = account_id_consumer(Cow::from(account_id_ref));
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "tom.near");
     }
 }

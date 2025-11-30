@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 /// A trait for types that can be converted into an [`AccountId`](crate::AccountId)
 ///
 /// This trait allows functions to accept account IDs in multiple forms without
@@ -67,11 +69,17 @@ pub trait TryIntoAccountId {
     /// Returns [`ParseAccountError`](crate::ParseAccountError) if the input
     /// string is not a valid NEAR account ID.
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError>;
+
+    fn as_str(&self) -> &str;
 }
 
 impl TryIntoAccountId for crate::AccountId {
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
         Ok(self)
+    }
+
+    fn as_str(&self) -> &str {
+        self.as_ref()
     }
 }
 
@@ -79,11 +87,19 @@ impl TryIntoAccountId for &crate::AccountId {
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
         Ok(self.to_owned())
     }
+
+    fn as_str(&self) -> &str {
+        self.as_ref()
+    }
 }
 
 impl TryIntoAccountId for &crate::AccountIdRef {
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
         Ok(self.to_owned())
+    }
+
+    fn as_str(&self) -> &str {
+        self.as_ref()
     }
 }
 
@@ -91,11 +107,29 @@ impl TryIntoAccountId for &str {
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
         self.parse()
     }
+
+    fn as_str(&self) -> &str {
+        self
+    }
 }
 
 impl TryIntoAccountId for String {
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
         crate::AccountId::try_from(self)
+    }
+
+    fn as_str(&self) -> &str {
+        self
+    }
+}
+
+impl TryIntoAccountId for Cow<'_, crate::AccountIdRef> {
+    fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
+        Ok(self.into_owned())
+    }
+
+    fn as_str(&self) -> &str {
+        self.as_ref().as_ref()
     }
 }
 
