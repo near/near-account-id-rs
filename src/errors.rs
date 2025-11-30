@@ -15,6 +15,12 @@ impl ParseAccountError {
     }
 }
 
+impl From<std::convert::Infallible> for ParseAccountError {
+    fn from(never: std::convert::Infallible) -> Self {
+        match never {}
+    }
+}
+
 impl std::error::Error for ParseAccountError {}
 impl fmt::Display for ParseAccountError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
