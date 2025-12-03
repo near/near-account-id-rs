@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0](https://github.com/near/near-account-id-rs/compare/v2.0.0...v2.1.0) - 2025-12-03
+
+### Added
+
+- Added `IntoAccountId` trait ([#44](https://github.com/near/near-account-id-rs/pull/44))
+
 ## [2.0.0](https://github.com/near/near-account-id-rs/compare/v1.1.4...v2.0.0) - 2025-09-26
 
 ### Added
