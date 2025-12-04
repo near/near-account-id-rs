@@ -296,6 +296,22 @@ impl AsRef<str> for AccountIdRef {
     }
 }
 
+/// ```rust
+/// # use near_account_id::{AccountId, AccountIdRef};
+/// fn foo(account_id: impl AsRef<AccountIdRef>) {}
+///
+/// let account_id: AccountId = "alice.near".parse().unwrap();
+/// let account_id_ref: &AccountIdRef = account_id.as_ref();
+///
+/// foo(account_id_ref);
+/// foo(account_id);
+/// ```
+impl AsRef<AccountIdRef> for AccountIdRef {
+    fn as_ref(&self) -> &AccountIdRef {
+        self
+    }
+}
+
 impl PartialEq<AccountIdRef> for String {
     fn eq(&self, other: &AccountIdRef) -> bool {
         self == &other.0
