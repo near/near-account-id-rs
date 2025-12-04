@@ -296,6 +296,12 @@ impl AsRef<str> for AccountIdRef {
     }
 }
 
+impl AsRef<AccountIdRef> for AccountIdRef {
+    fn as_ref(&self) -> &AccountIdRef {
+        self
+    }
+}
+
 impl PartialEq<AccountIdRef> for String {
     fn eq(&self, other: &AccountIdRef) -> bool {
         self == &other.0
