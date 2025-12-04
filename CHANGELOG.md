@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0](https://github.com/near/near-account-id-rs/compare/v2.1.0...v2.2.0) - 2025-12-04
+
+### Added
+
+- `impl AsRef<AccountIdRef> for AccountIdRef` ([#46](https://github.com/near/near-account-id-rs/pull/46))
+
 ## [2.1.0](https://github.com/near/near-account-id-rs/compare/v2.0.0...v2.1.0) - 2025-12-03
 
 ### Added
