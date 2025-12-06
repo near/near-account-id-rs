@@ -1,6 +1,6 @@
 #![no_main]
 
-use borsh::{BorshDeserialize};
+use borsh::BorshDeserialize;
 use libfuzzer_sys::fuzz_target;
 use near_account_id::AccountId;
 
