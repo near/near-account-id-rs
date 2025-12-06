@@ -43,12 +43,10 @@ impl Arbitrary<'_> for AccountId {
 /// #   arbitrary::ArbitraryNearImplicitAccountId,
 /// # };
 /// # fn main() -> Result<()> {
-/// # let bytes = &[];
-/// # let mut u = Unstructured::new(bytes);
+/// # let mut u = Unstructured::new(&[]);
 /// use arbitrary_with::UnstructuredExt;
 ///
 /// let account_id = u.arbitrary_as::<AccountId, ArbitraryNearImplicitAccountId>()?;
-///
 /// assert_eq!(account_id.get_account_type(), AccountType::NearImplicitAccount);
 /// # Ok(())
 /// # }
@@ -75,12 +73,10 @@ impl<'a> ArbitraryAs<'a, AccountId> for ArbitraryNearImplicitAccountId {
 /// #   arbitrary::ArbitraryEthImplicitAccountId,
 /// # };
 /// # fn main() -> Result<()> {
-/// # let bytes = &[];
-/// # let mut u = Unstructured::new(bytes);
+/// # let mut u = Unstructured::new(&[]);
 /// use arbitrary_with::UnstructuredExt;
 ///
 /// let account_id = u.arbitrary_as::<AccountId, ArbitraryEthImplicitAccountId>()?;
-///
 /// assert_eq!(account_id.get_account_type(), AccountType::EthImplicitAccount);
 /// # Ok(())
 /// # }
@@ -109,12 +105,10 @@ impl<'a> ArbitraryAs<'a, AccountId> for ArbitraryEthImplicitAccountId {
 /// #   arbitrary::ArbitraryNearDeterministicAccountId,
 /// # };
 /// # fn main() -> Result<()> {
-/// # let bytes = &[];
-/// # let mut u = Unstructured::new(bytes);
+/// # let mut u = Unstructured::new(&[]);
 /// use arbitrary_with::UnstructuredExt;
 ///
 /// let account_id = u.arbitrary_as::<AccountId, ArbitraryNearDeterministicAccountId>()?;
-///
 /// assert_eq!(account_id.get_account_type(), AccountType::NearDeterministicAccount);
 /// # Ok(())
 /// # }
@@ -141,7 +135,24 @@ pub struct ArbitraryNamedAccountId;
 
 impl ArbitraryNamedAccountId {
     /// Generate arbitrary subaccount of `parent`.
-    /// If `parent` is `None`, then top-level [`AccountId`] is generated.
+    /// If `parent` is `None` then top-level [`AccountId`] is generated.
+    /// ```rust
+    /// # use arbitrary::{Unstructured, Result};
+    /// # use near_account_id::{
+    /// #   AccountId,
+    /// #   arbitrary::ArbitraryNamedAccountId,
+    /// # };
+    /// # fn main() -> Result<()> {
+    /// # let mut u = Unstructured::new(&[]);
+    ///
+    /// let tla = ArbitraryNamedAccountId::arbitrary_subaccount(&mut u, None)?;
+    /// assert!(tla.is_top_level());
+    ///
+    /// let subaccount = ArbitraryNamedAccountId::arbitrary_subaccount(&mut u, Some(&tla))?;
+    /// assert!(subaccount.is_sub_account_of(&tla));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn arbitrary_subaccount(
         u: &mut Unstructured<'_>,
         parent: Option<&AccountIdRef>,
