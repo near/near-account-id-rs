@@ -27,6 +27,7 @@ use crate::{AccountId, ParseAccountError};
 /// [`Path`]: std::path::Path
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Hash)]
 #[cfg_attr(feature = "abi", derive(borsh::BorshSchema))]
+#[repr(transparent)] // required for `mem::transmute()` safety
 pub struct AccountIdRef(pub(crate) str);
 
 /// Enum representing possible types of accounts.
@@ -74,7 +75,7 @@ impl AccountIdRef {
         crate::validation::validate(id)?;
 
         // Safety:
-        // - a newtype struct is guaranteed to have the same memory layout as its only field
+        // - `#[repr(transparent)]` guarantees the same memory layout as its only field
         // - the borrow checker will enforce its rules appropriately on the resulting reference
         Ok(unsafe { &*(id as *const str as *const Self) })
     }
