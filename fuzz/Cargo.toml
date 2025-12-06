@@ -12,9 +12,9 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = { version = ">=0.2.0, <0.5", features = ["arbitrary-derive"] }
-borsh = { version = "0.10" }
+borsh = { version = "1" }
 serde_json = "1.0.25"
-near-account-id = { path = ".." }
+near-account-id = { path = "..", features = ["arbitrary", "borsh", "serde"] }
 
 [[bin]]
 name = "serde"

@@ -39,6 +39,8 @@ mod errors;
 
 mod account_id;
 mod account_id_ref;
+#[cfg(feature = "arbitrary")]
+pub mod arbitrary;
 #[cfg(feature = "borsh")]
 mod borsh;
 mod into_account_id;
