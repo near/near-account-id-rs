@@ -408,8 +408,10 @@ mod tests {
             let mut u = arbitrary::Unstructured::new(&data);
 
             assert_eq!(
-                u.arbitrary::<AccountId>().map(Into::<String>::into).ok(),
-                expected_output.map(Into::<String>::into)
+                u.arbitrary::<&AccountIdRef>()
+                    .map(AsRef::<str>::as_ref)
+                    .ok(),
+                expected_output
             );
         }
     }
