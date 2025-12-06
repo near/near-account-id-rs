@@ -6,6 +6,7 @@ edition = "2021"
 description = "This crate contains the Account ID primitive and its validation facilities"
 repository = "https://github.com/near/near-account-id"
 license = "MIT OR Apache-2.0"
+rust-version = "1.85"
 publish = true
 
 [features]

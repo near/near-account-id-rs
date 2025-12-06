@@ -31,7 +31,7 @@ at your option.
 
 ## Minimum Supported Rust Version (MSRV)
 
-1.65
+1.85
 
 ## Contribution
 
