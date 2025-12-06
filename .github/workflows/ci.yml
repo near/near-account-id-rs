@@ -13,7 +13,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: rust:1.65.0
+      image: rust:1.85.0
     steps:
     - uses: actions/checkout@v3
     - uses: Swatinem/rust-cache@v1
@@ -24,7 +24,7 @@ jobs:
   test-all:
     runs-on: ubuntu-latest
     container:
-      image: rust:1.74.0
+      image: rust:1.85.0
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
@@ -35,7 +35,7 @@ jobs:
   test-schemars-v1:
     runs-on: ubuntu-latest
     container:
-      image: rust:1.74.0
+      image: rust:1.85.0
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
@@ -46,7 +46,7 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     container:
-      image: rust:1.74.0
+      image: rust:1.85.0
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
