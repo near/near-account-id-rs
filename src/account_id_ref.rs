@@ -27,7 +27,7 @@ use crate::{AccountId, ParseAccountError};
 /// [`Path`]: std::path::Path
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Hash)]
 #[cfg_attr(feature = "abi", derive(borsh::BorshSchema))]
-#[repr(transparent)] // required for `mem::transmute()` safety
+#[repr(transparent)]
 pub struct AccountIdRef(pub(crate) str);
 
 /// Enum representing possible types of accounts.
