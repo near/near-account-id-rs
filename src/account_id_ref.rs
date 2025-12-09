@@ -36,7 +36,7 @@ pub struct AccountIdRef(pub(crate) str);
 ///
 /// [`get_account_type`]: AccountIdRef::get_account_type
 /// [`AccountIdRef`]: struct.AccountIdRef.html
-#[derive(PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AccountType {
     /// Any valid account, that is neither NEAR-implicit nor ETH-implicit.
     NamedAccount,

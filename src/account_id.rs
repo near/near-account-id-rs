@@ -379,21 +379,6 @@ impl schemars_v1::JsonSchema for AccountId {
     }
 }
 
-#[cfg(feature = "arbitrary")]
-impl<'a> arbitrary::Arbitrary<'a> for AccountId {
-    fn size_hint(depth: usize) -> (usize, Option<usize>) {
-        <&AccountIdRef as arbitrary::Arbitrary>::size_hint(depth)
-    }
-
-    fn arbitrary(u: &mut arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
-        Ok(u.arbitrary::<&AccountIdRef>()?.into())
-    }
-
-    fn arbitrary_take_rest(u: arbitrary::Unstructured<'a>) -> arbitrary::Result<Self> {
-        Ok(<&AccountIdRef as arbitrary::Arbitrary>::arbitrary_take_rest(u)?.into())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::{ParseErrorKind, TryIntoAccountId};
@@ -423,8 +408,10 @@ mod tests {
             let mut u = arbitrary::Unstructured::new(&data);
 
             assert_eq!(
-                u.arbitrary::<AccountId>().map(Into::<String>::into).ok(),
-                expected_output.map(Into::<String>::into)
+                u.arbitrary::<&AccountIdRef>()
+                    .map(AsRef::<str>::as_ref)
+                    .ok(),
+                expected_output
             );
         }
     }
