@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0](https://github.com/near/near-account-id-rs/compare/v2.2.0...v2.3.0) - 2025-12-09
+
+### Added
+
+- granular `arbitrary` impls ([#50](https://github.com/near/near-account-id-rs/pull/50))
+
+### Fixed
+
+- Ensure transmute safety for AccountIdRef ([#48](https://github.com/near/near-account-id-rs/pull/48))
+
+### Other
+
+- Unpinned Rust version for release-plz (use stable again as we bumped MSRV)
+
 ## [2.2.0](https://github.com/near/near-account-id-rs/compare/v2.1.0...v2.2.0) - 2025-12-04
 
 ### Added
