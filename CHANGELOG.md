@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `parent.subaccount(name) -> AccountId` ([#51](https://github.com/near/near-account-id-rs/pull/51))
+- Added a new method to construct sub-account ID: `account_id.sub_account(prefix) -> Result<AccountId, ParseError>` ([#51](https://github.com/near/near-account-id-rs/pull/51))
 
 ## [2.3.0](https://github.com/near/near-account-id-rs/compare/v2.2.0...v2.3.0) - 2025-12-09
 
