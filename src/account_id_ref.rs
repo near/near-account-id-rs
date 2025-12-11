@@ -148,6 +148,23 @@ impl AccountIdRef {
         !self.is_system() && !self.0.contains('.')
     }
 
+    /// Returns sub account of current account: `{name}.{parent}`.
+    ///
+    /// Returns `Err` if the resulting sub account is invalid (e.g. too long).
+    ///
+    /// ## Examples
+    /// ```
+    /// use near_account_id::AccountIdRef;
+    ///
+    /// let parent = AccountIdRef::new("near").unwrap();
+    /// let child = parent.sub_account("alice").unwrap();
+    ///
+    /// assert!(child.is_sub_account_of(parent));
+    /// ```
+    pub fn sub_account(&self, name: impl AsRef<str>) -> Result<AccountId, ParseAccountError> {
+        format!("{}.{}", name.as_ref(), self).parse()
+    }
+
     /// Returns `true` if the `AccountId` is a direct sub-account of the provided parent account.
     ///
     /// See [Subaccounts](https://docs.near.org/docs/concepts/account#subaccounts).
@@ -170,9 +187,9 @@ impl AccountIdRef {
     /// assert!(alice_app.is_sub_account_of(&alice));
     /// assert!(!alice_app.is_sub_account_of(&near_tla));
     /// ```
-    pub fn is_sub_account_of(&self, parent: &AccountIdRef) -> bool {
+    pub fn is_sub_account_of(&self, parent: impl AsRef<AccountIdRef>) -> bool {
         self.0
-            .strip_suffix(parent.as_str())
+            .strip_suffix(parent.as_ref().as_str())
             .and_then(|s| s.strip_suffix('.'))
             .map_or(false, |s| !s.contains('.'))
     }
