@@ -151,14 +151,14 @@ impl AccountIdRef {
     /// Returns sub account of current account: `{name}.{parent}`.
     ///
     /// Returns `Err` if the resulting sub account is invalid (e.g. too long).
-    /// 
+    ///
     /// ## Examples
     /// ```
     /// use near_account_id::AccountIdRef;
-    /// 
+    ///
     /// let parent = AccountIdRef::new("near").unwrap();
     /// let child = parent.sub_account("alice").unwrap();
-    /// 
+    ///
     /// assert!(child.is_sub_account_of(parent));
     /// ```
     pub fn sub_account(&self, name: impl AsRef<str>) -> Result<AccountId, ParseAccountError> {
