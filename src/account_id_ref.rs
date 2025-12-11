@@ -148,20 +148,20 @@ impl AccountIdRef {
         !self.is_system() && !self.0.contains('.')
     }
 
-    /// Returns subaccount of current account: `{name}.{parent}`.
+    /// Returns sub account of current account: `{name}.{parent}`.
     ///
-    /// Returns `Err` if the resulting subaccount is invalid (e.g. too long).
+    /// Returns `Err` if the resulting sub account is invalid (e.g. too long).
     /// 
     /// ## Examples
     /// ```
     /// use near_account_id::AccountIdRef;
     /// 
     /// let parent = AccountIdRef::new("near").unwrap();
-    /// let child = parent.subaccount("alice").unwrap();
+    /// let child = parent.sub_account("alice").unwrap();
     /// 
     /// assert!(child.is_sub_account_of(parent));
     /// ```
-    pub fn subaccount(&self, name: impl AsRef<str>) -> Result<AccountId, ParseAccountError> {
+    pub fn sub_account(&self, name: impl AsRef<str>) -> Result<AccountId, ParseAccountError> {
         format!("{}.{}", name.as_ref(), self).parse()
     }
 
