@@ -165,6 +165,26 @@ impl AccountIdRef {
         format!("{}.{}", name.as_ref(), self).parse()
     }
 
+    /// Returns parent account if current account is a subaccount.
+    ///
+    /// ## Examples
+    /// ```
+    /// use near_account_id::AccountIdRef;
+    ///
+    /// let tla = AccountIdRef::new("near").unwrap();
+    /// assert_eq!(tla.parent(), None);
+    ///
+    /// let child = AccountIdRef::new("alice.near").unwrap();
+    /// let parent = child.parent().unwrap();
+    ///
+    /// assert_eq!(parent, "near");
+    /// assert!(child.is_sub_account_of(parent));
+    /// ```
+    pub fn parent(&self) -> Option<&Self> {
+        let (_, parent) = self.as_str().split_once('.')?;
+        Some(Self::new_unvalidated(parent))
+    }
+
     /// Returns `true` if the `AccountId` is a direct sub-account of the provided parent account.
     ///
     /// See [Subaccounts](https://docs.near.org/docs/concepts/account#subaccounts).
