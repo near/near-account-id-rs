@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0](https://github.com/near/near-account-id-rs/compare/v2.4.0...v2.5.0) - 2025-12-13
+
+### Added
+
+- account_id.parent() ([#53](https://github.com/near/near-account-id-rs/pull/53))
+
 ## [2.4.0](https://github.com/near/near-account-id-rs/compare/v2.3.0...v2.4.0) - 2025-12-11
 
 ### Added
