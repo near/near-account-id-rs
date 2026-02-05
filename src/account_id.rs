@@ -350,7 +350,7 @@ impl schemars_v0_8::JsonSchema for AccountId {
         "AccountId".to_string()
     }
 
-    fn json_schema(_: &mut schemars_v0_8::gen::SchemaGenerator) -> schemars_v0_8::schema::Schema {
+    fn json_schema(_: &mut schemars_v0_8::r#gen::SchemaGenerator) -> schemars_v0_8::schema::Schema {
         use schemars_v0_8::schema::{InstanceType, Metadata, Schema, SchemaObject, SingleOrVec};
         Schema::Object(SchemaObject {
             instance_type: Some(SingleOrVec::Single(Box::new(InstanceType::String))),
