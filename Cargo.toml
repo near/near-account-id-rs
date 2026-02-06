@@ -3,7 +3,6 @@ name = "near-account-id"
 version = "2.5.0"
 authors = ["Near Inc <hello@nearprotocol.com>"]
 edition = "2024"
-resolver = "3"
 description = "This crate contains the Account ID primitive and its validation facilities"
 repository = "https://github.com/near/near-account-id"
 license = "MIT OR Apache-2.0"
