@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.0](https://github.com/near/near-account-id-rs/compare/v2.5.0...v2.6.0) - 2026-03-17
+
+### Added
+
+- implement TryIntoAccountId for &String ([#59](https://github.com/near/near-account-id-rs/pull/59))
+
+### Other
+
+- upgrade to Rust edition 2024 ([#58](https://github.com/near/near-account-id-rs/pull/58))
+- migrate to org-wide NEARPROTOCOL_CI_PR_ACCESS token ([#57](https://github.com/near/near-account-id-rs/pull/57))
+- add DevEx to CODEOWNERS ([#55](https://github.com/near/near-account-id-rs/pull/55))
+
 ## [2.5.0](https://github.com/near/near-account-id-rs/compare/v2.4.0...v2.5.0) - 2025-12-13
 
 ### Added
