@@ -121,6 +121,16 @@ impl TryIntoAccountId for String {
     }
 }
 
+impl TryIntoAccountId for &String {
+    fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
+        self.as_str().parse()
+    }
+
+    fn as_str(&self) -> &str {
+        self
+    }
+}
+
 impl TryIntoAccountId for std::borrow::Cow<'_, crate::AccountIdRef> {
     fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
         Ok(self.into())
@@ -180,6 +190,16 @@ mod tests {
         let result = accept_account(account_string);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "bob.near");
+    }
+
+    #[test]
+    fn test_borrowed_string() {
+        let account_string = String::from("bob.near");
+        let result = accept_account(&account_string);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "bob.near");
+        // Original still exists
+        assert_eq!(account_string, "bob.near");
     }
 
     #[test]
