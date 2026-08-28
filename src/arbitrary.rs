@@ -3,7 +3,11 @@ use core::iter;
 use arbitrary::{Arbitrary, Error, Result, Unstructured};
 use arbitrary_with::ArbitraryAs;
 
+use crate::validation::CROCKFORD;
 use crate::{AccountId, AccountIdRef, AccountType};
+
+/// Base32 symbols a universal account ID carries after its `0u` prefix.
+const NUM_UNIVERSAL_SYMBOLS: usize = 52;
 
 impl Arbitrary<'_> for AccountId {
     fn arbitrary(u: &mut Unstructured<'_>) -> Result<AccountId> {
@@ -12,6 +16,7 @@ impl Arbitrary<'_> for AccountId {
             AccountType::NearImplicitAccount,
             AccountType::EthImplicitAccount,
             AccountType::NearDeterministicAccount,
+            AccountType::UniversalAccount,
         ])? {
             AccountType::NamedAccount => {
                 // TLA
@@ -31,6 +36,7 @@ impl Arbitrary<'_> for AccountId {
             AccountType::NearDeterministicAccount => {
                 ArbitraryNearDeterministicAccountId::arbitrary_as(u)
             }
+            AccountType::UniversalAccount => ArbitraryUniversalAccountId::arbitrary_as(u),
         }
     }
 }
@@ -126,6 +132,47 @@ impl<'a> ArbitraryAs<'a, AccountId> for ArbitraryNearDeterministicAccountId {
     #[inline]
     fn size_hint_as(_depth: usize) -> (usize, Option<usize>) {
         (20, Some(20))
+    }
+}
+
+/// Adapter to generate arbitrary universal [`AccountId`] via [`ArbitraryAs`]:
+/// ```rust
+/// # use arbitrary::{Unstructured, Result};
+/// # use near_account_id::{
+/// #   AccountId, AccountType,
+/// #   arbitrary::ArbitraryUniversalAccountId,
+/// # };
+/// # fn main() -> Result<()> {
+/// # let mut u = Unstructured::new(&[]);
+/// use arbitrary_with::UnstructuredExt;
+///
+/// let account_id = u.arbitrary_as::<AccountId, ArbitraryUniversalAccountId>()?;
+/// assert_eq!(account_id.get_account_type(), AccountType::UniversalAccount);
+/// # Ok(())
+/// # }
+/// ```
+pub struct ArbitraryUniversalAccountId;
+impl<'a> ArbitraryAs<'a, AccountId> for ArbitraryUniversalAccountId {
+    #[inline]
+    fn arbitrary_as(u: &mut Unstructured<'a>) -> Result<AccountId> {
+        let bytes = u.arbitrary::<[u8; NUM_UNIVERSAL_SYMBOLS]>()?;
+        let (padding, body) = bytes.split_last().unwrap_or_else(|| unreachable!());
+
+        let mut account_id = String::with_capacity(2 + NUM_UNIVERSAL_SYMBOLS);
+        account_id.push_str("0u");
+        for &byte in body {
+            account_id.push(CROCKFORD[(byte % 32) as usize] as char);
+        }
+        // The last symbol carries the four padding bits, which a canonical address
+        // leaves zero, so `0` and `g` are the only values it can take.
+        account_id.push(if padding % 2 == 0 { '0' } else { 'g' });
+
+        Ok(account_id.parse().unwrap_or_else(|_| unreachable!()))
+    }
+
+    #[inline]
+    fn size_hint_as(_depth: usize) -> (usize, Option<usize>) {
+        (NUM_UNIVERSAL_SYMBOLS, Some(NUM_UNIVERSAL_SYMBOLS))
     }
 }
 
