@@ -38,7 +38,7 @@ pub struct AccountIdRef(pub(crate) str);
 /// [`AccountIdRef`]: struct.AccountIdRef.html
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AccountType {
-    /// Any valid account, that is neither NEAR-implicit nor ETH-implicit.
+    /// Any valid account that is not implicit.
     NamedAccount,
     /// An account with 64 characters long hexadecimal address.
     NearImplicitAccount,
@@ -48,6 +48,11 @@ pub enum AccountType {
     ///
     /// See [NEP-616](https://github.com/near/NEPs/pull/616/) for more details.
     NearDeterministicAccount,
+    /// An account which address starts with '0u', followed by 52 Crockford base32
+    /// characters encoding a 256-bit hash. Only the canonical encoding of a hash
+    /// counts, so an address whose trailing padding bits are set is a
+    /// [`NamedAccount`](AccountType::NamedAccount).
+    UniversalAccount,
 }
 
 impl AccountType {
@@ -56,6 +61,7 @@ impl AccountType {
             Self::NearImplicitAccount => true,
             Self::EthImplicitAccount => true,
             Self::NearDeterministicAccount => true,
+            Self::UniversalAccount => true,
             Self::NamedAccount => false,
         }
     }
@@ -214,9 +220,8 @@ impl AccountIdRef {
             .map_or(false, |s| !s.contains('.'))
     }
 
-    /// Returns `AccountType::EthImplicitAccount` if the `AccountId` is a 40 characters long hexadecimal prefixed with '0x'.
-    /// Returns `AccountType::NearImplicitAccount` if the `AccountId` is a 64 characters long hexadecimal.
-    /// Otherwise, returns `AccountType::NamedAccount`.
+    /// Returns the implicit account type whose address format the `AccountId` matches,
+    /// and `AccountType::NamedAccount` when it matches none of them.
     ///
     /// See [Implicit-Accounts](https://docs.near.org/docs/concepts/account#implicit-accounts).
     ///
@@ -247,6 +252,9 @@ impl AccountIdRef {
         }
         if crate::validation::is_near_deterministic(self.as_str()) {
             return AccountType::NearDeterministicAccount;
+        }
+        if crate::validation::is_universal(self.as_str()) {
+            return AccountType::UniversalAccount;
         }
         AccountType::NamedAccount
     }
@@ -926,6 +934,91 @@ mod tests {
                 ),
                 "Account ID {} is not a NEAR deterministic account",
                 invalid_account_id
+            );
+        }
+    }
+
+    #[test]
+    fn test_is_account_id_universal() {
+        let valid_universal_account_ids = &[
+            "0u0000000000000000000000000000000000000000000000000000",
+            "0uzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzg",
+            "0u000g40r40m30e209185gr38e1w8124gk2gahc5rr34d1p70x3rfg",
+        ];
+        for valid_account_id in valid_universal_account_ids {
+            assert!(
+                matches!(
+                    valid_account_id.parse::<AccountId>(),
+                    Ok(account_id) if account_id.get_account_type() == AccountType::UniversalAccount
+                ),
+                "Account ID {} should be valid 54-len Crockford base32, starting with 0u",
+                valid_account_id
+            );
+        }
+
+        let invalid_universal_account_ids = &[
+            // Trailing padding bits set, so a second spelling of the all-zero hash.
+            "0u0000000000000000000000000000000000000000000000000001",
+            // `i` is not a Crockford symbol, though it is a valid account ID character.
+            "0u00000000000000000000000000000000000000000000000000i0",
+            "0u000000000000000000000000000000000000000000000000000",
+            "00u000000000000000000000000000000000000000000000000000",
+            "0s0000000000000000000000000000000000000000",
+            "0v0000000000000000000000000000000000000000000000000000",
+            "alice.near",
+            "0u.match_total_len_54_with_a_named_account_00000000000",
+        ];
+        for invalid_account_id in invalid_universal_account_ids {
+            assert!(
+                !matches!(
+                    invalid_account_id.parse::<AccountId>(),
+                    Ok(account_id) if account_id.get_account_type() == AccountType::UniversalAccount
+                ),
+                "Account ID {} is not a universal account",
+                invalid_account_id
+            );
+        }
+    }
+
+    /// The final symbol carries the four padding bits, so `0` and `g` are the only
+    /// values that leave them zero and the address canonical.
+    #[test]
+    fn test_universal_account_id_canonical_final_symbol() {
+        let crockford = "0123456789abcdefghjkmnpqrstvwxyz";
+        for final_symbol in crockford.chars() {
+            let account_id = format!("0u{}{}", "0".repeat(51), final_symbol);
+            let is_universal = matches!(
+                account_id.parse::<AccountId>(),
+                Ok(parsed) if parsed.get_account_type() == AccountType::UniversalAccount
+            );
+            assert_eq!(
+                is_universal,
+                final_symbol == '0' || final_symbol == 'g',
+                "final symbol {} classified as universal: {}",
+                final_symbol,
+                is_universal
+            );
+        }
+    }
+
+    /// Every generated address satisfies the predicate that defines the type.
+    #[test]
+    #[cfg(feature = "arbitrary")]
+    fn test_arbitrary_universal_account_id_is_universal() {
+        use crate::arbitrary::ArbitraryUniversalAccountId;
+        use arbitrary_with::UnstructuredExt;
+
+        let seeds = [[0x00u8; 52], [0xffu8; 52], [0x5au8; 52], [0x01u8; 52]];
+        for seed in seeds {
+            let mut u = arbitrary::Unstructured::new(&seed);
+            let account_id = u
+                .arbitrary_as::<AccountId, ArbitraryUniversalAccountId>()
+                .unwrap();
+            assert_eq!(
+                account_id.get_account_type(),
+                AccountType::UniversalAccount,
+                "generated {} is not a universal account",
+                account_id
             );
         }
     }
