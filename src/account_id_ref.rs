@@ -1008,7 +1008,7 @@ mod tests {
         use crate::arbitrary::ArbitraryUniversalAccountId;
         use arbitrary_with::UnstructuredExt;
 
-        let seeds = [[0x00u8; 52], [0xffu8; 52], [0x5au8; 52], [0x01u8; 52]];
+        let seeds = [[0x00u8; 32], [0xffu8; 32], [0x5au8; 32], [0x01u8; 32]];
         for seed in seeds {
             let mut u = arbitrary::Unstructured::new(&seed);
             let account_id = u
