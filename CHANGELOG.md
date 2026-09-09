@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0](https://github.com/near/near-account-id-rs/compare/v2.6.0...v3.0.0) - 2026-08-28
+
+### Added
+
+- BREAKING: New variant `UniversalAccount` in `AccountType`, for the `0u` universal account IDs. ([#61](https://github.com/near/near-account-id-rs/pull/61))
+
+### Changed
+
+- `AccountType::is_implicit()` will return `true` for the new account type `UniversalAccount`. Callers should check their assumptions on what this method means.
+
 ## [2.6.0](https://github.com/near/near-account-id-rs/compare/v2.5.0...v2.6.0) - 2026-03-17
 
 ### Added
