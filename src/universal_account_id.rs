@@ -486,6 +486,55 @@ mod tests {
         }
     }
 
+    /// Copied verbatim from nearcore's `core/primitives-core/src/universal_account_id.rs`
+    /// (`base32_encode` + `encode_universal_account_id`, 2.14-release). nearcore keeps
+    /// its own encoder and only uses this crate for classification, so the two must
+    /// agree byte for byte: on-chain the receiver of a `UniversalStateInit` action is
+    /// checked against nearcore's derivation, off-chain callers derive with this crate.
+    fn nearcore_encode(hash: &[u8; UNIVERSAL_HASH_LEN]) -> String {
+        let mut out = [0u8; DATA_SYMBOLS];
+        let mut acc: u32 = 0;
+        let mut nbits: u32 = 0;
+        let mut idx = 0;
+        for &byte in hash {
+            acc = (acc << 8) | byte as u32;
+            nbits += 8;
+            while nbits >= 5 {
+                nbits -= 5;
+                out[idx] = ((acc >> nbits) & 0x1f) as u8;
+                idx += 1;
+            }
+            acc &= (1u32 << nbits) - 1;
+        }
+        out[idx] = ((acc << (5 - nbits)) & 0x1f) as u8;
+        let mut s = String::from(UniversalAccountId::PREFIX);
+        for &v in &out {
+            s.push(CROCKFORD[v as usize] as char);
+        }
+        s
+    }
+
+    #[test]
+    fn matches_nearcore_encoder() {
+        let mut state: u64 = 0x9E37_79B9_7F4A_7C15;
+        let mut hashes = vec![[0x00; UNIVERSAL_HASH_LEN], [0xff; UNIVERSAL_HASH_LEN]];
+        for _ in 0..10_000 {
+            let mut hash = [0u8; UNIVERSAL_HASH_LEN];
+            for chunk in hash.chunks_mut(8) {
+                state ^= state << 13;
+                state ^= state >> 7;
+                state ^= state << 17;
+                chunk.copy_from_slice(&state.to_le_bytes());
+            }
+            hashes.push(hash);
+        }
+        for hash in hashes {
+            let expected = nearcore_encode(&hash);
+            assert_eq!(UniversalAccountId::from_hash(hash).as_str(), expected);
+            assert_eq!(expected.parse::<UniversalAccountId>().unwrap().hash(), hash);
+        }
+    }
+
     #[test]
     fn parser_round_trip_fuzz() {
         bolero::check!().for_each(|input: &[u8]| {
