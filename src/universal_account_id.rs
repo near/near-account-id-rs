@@ -24,6 +24,7 @@ const fn build_decode_table() -> [u8; 256] {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ParseUniversalAccountIdError {
     /// Universal account IDs are exactly 54 bytes long.
+    #[non_exhaustive]
     InvalidLength {
         /// Expected byte length.
         expected: usize,
@@ -33,6 +34,7 @@ pub enum ParseUniversalAccountIdError {
     /// The account ID does not start with `0u`.
     InvalidPrefix,
     /// The account ID contains a character outside the lowercase Crockford base32 alphabet.
+    #[non_exhaustive]
     InvalidSymbol {
         /// Byte index of the invalid character.
         index: usize,
