@@ -441,6 +441,9 @@ impl schemars_v1::JsonSchema for UniversalAccountId {
 mod tests {
     use super::*;
 
+    /// The known-answer vectors nearcore pins in
+    /// `core/primitives-core/src/universal_account_id.rs` (`KATS`), kept identical so
+    /// a change on either side shows up here.
     const KNOWN_ANSWERS: &[([u8; UNIVERSAL_HASH_LEN], &str)] = &[
         (
             [0x00; UNIVERSAL_HASH_LEN],
@@ -457,6 +460,14 @@ mod tests {
                 0x1c, 0x1d, 0x1e, 0x1f,
             ],
             "0u000g40r40m30e209185gr38e1w8124gk2gahc5rr34d1p70x3rfg",
+        ),
+        (
+            [
+                0x00, 0x07, 0x0e, 0x15, 0x1c, 0x23, 0x2a, 0x31, 0x38, 0x3f, 0x46, 0x4d, 0x54, 0x5b,
+                0x62, 0x69, 0x70, 0x77, 0x7e, 0x85, 0x8c, 0x93, 0x9a, 0xa1, 0xa8, 0xaf, 0xb6, 0xbd,
+                0xc4, 0xcb, 0xd2, 0xd9,
+            ],
+            "0u003gw58w4cn32e1z8s6n8pv2d5r7ezm5hj9sn8d8nyvbvh6btbcg",
         ),
     ];
 
