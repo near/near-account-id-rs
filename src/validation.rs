@@ -111,16 +111,8 @@ pub fn is_near_deterministic(account_id: &str) -> bool {
             .all(|b| matches!(b, b'a'..=b'f' | b'0'..=b'9'))
 }
 
-/// Crockford base32, lowercase, excluding `i l o u` to reduce transcription errors.
-pub(crate) const CROCKFORD: &[u8; 32] = b"0123456789abcdefghjkmnpqrstvwxyz";
-
 pub fn is_universal(account_id: &str) -> bool {
-    account_id.len() == 54
-        && account_id.starts_with("0u")
-        && account_id[2..].as_bytes().iter().all(|b| CROCKFORD.contains(b))
-        // The hash is 256 bits and 52 symbols carry 260, so the last 4 bits are padding
-        // and must be zero for a canonical encoding: only `0` and `g` have zero there.
-        && matches!(account_id.as_bytes()[53], b'0' | b'g')
+    crate::universal_account_id::is_universal_account_id(account_id)
 }
 
 pub fn is_near_implicit(account_id: &str) -> bool {

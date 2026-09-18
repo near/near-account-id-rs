@@ -1,4 +1,4 @@
-use crate::AccountIdRef;
+use crate::{AccountIdRef, UniversalAccountId};
 
 use super::AccountId;
 
@@ -22,6 +22,15 @@ impl ser::Serialize for AccountIdRef {
     }
 }
 
+impl ser::Serialize for UniversalAccountId {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ser::Serializer,
+    {
+        self.as_str().serialize(serializer)
+    }
+}
+
 impl<'de> de::Deserialize<'de> for AccountId {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -32,6 +41,17 @@ impl<'de> de::Deserialize<'de> for AccountId {
             de::Error::custom(format!("invalid value: \"{}\", {}", account_id, err))
         })?;
         Ok(AccountId(account_id))
+    }
+}
+
+impl<'de> de::Deserialize<'de> for UniversalAccountId {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        Box::<str>::deserialize(deserializer)?
+            .parse()
+            .map_err(de::Error::custom)
     }
 }
 
@@ -48,7 +68,7 @@ impl<'de> de::Deserialize<'de> for &'de AccountIdRef {
 #[cfg(test)]
 mod tests {
     use crate::test_data::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS};
-    use crate::AccountId;
+    use crate::{AccountId, UniversalAccountId};
 
     use serde_json::json;
 
@@ -96,5 +116,20 @@ mod tests {
                 }
             }
         });
+    }
+
+    #[test]
+    fn universal_account_id_round_trip() {
+        let account_id = UniversalAccountId::from_hash([0x5a; 32]);
+        let json = serde_json::to_string(&account_id).unwrap();
+        let generic: AccountId = account_id.clone().into();
+        assert_eq!(json, serde_json::to_string(&generic).unwrap());
+        assert_eq!(
+            serde_json::from_str::<UniversalAccountId>(&json).unwrap(),
+            account_id
+        );
+
+        let non_canonical = format!("\"0u{}1\"", "0".repeat(51));
+        assert!(serde_json::from_str::<UniversalAccountId>(&non_canonical).is_err());
     }
 }

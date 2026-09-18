@@ -1,4 +1,4 @@
-use crate::AccountIdRef;
+use crate::{AccountIdRef, UniversalAccountId};
 
 use super::AccountId;
 
@@ -18,6 +18,12 @@ impl BorshSerialize for AccountIdRef {
     }
 }
 
+impl BorshSerialize for UniversalAccountId {
+    fn serialize<W: Write>(&self, writer: &mut W) -> std::io::Result<()> {
+        self.as_str().serialize(writer)
+    }
+}
+
 impl BorshDeserialize for AccountId {
     fn deserialize_reader<R: Read>(rd: &mut R) -> std::io::Result<Self> {
         let account_id = Box::<str>::deserialize_reader(rd)?;
@@ -31,12 +37,24 @@ impl BorshDeserialize for AccountId {
     }
 }
 
+impl BorshDeserialize for UniversalAccountId {
+    fn deserialize_reader<R: Read>(rd: &mut R) -> std::io::Result<Self> {
+        let account_id = Box::<str>::deserialize_reader(rd)?;
+        account_id.parse().map_err(|error| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("invalid universal account ID {account_id:?}: {error}"),
+            )
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use borsh::BorshDeserialize as _;
 
     use crate::test_data::{BAD_ACCOUNT_IDS, OK_ACCOUNT_IDS};
-    use crate::AccountId;
+    use crate::{AccountId, UniversalAccountId};
 
     #[test]
     fn test_is_valid_account_id() {
@@ -82,5 +100,21 @@ mod tests {
                 );
             }
         });
+    }
+
+    #[test]
+    fn universal_account_id_round_trip() {
+        let account_id = UniversalAccountId::from_hash([0x5a; 32]);
+        let bytes = borsh::to_vec(&account_id).unwrap();
+        let generic: AccountId = account_id.clone().into();
+        assert_eq!(bytes, borsh::to_vec(&generic).unwrap());
+        assert_eq!(
+            UniversalAccountId::try_from_slice(&bytes).unwrap(),
+            account_id
+        );
+
+        let non_canonical = format!("0u{}1", "0".repeat(51));
+        let bytes = borsh::to_vec(&non_canonical).unwrap();
+        assert!(UniversalAccountId::try_from_slice(&bytes).is_err());
     }
 }

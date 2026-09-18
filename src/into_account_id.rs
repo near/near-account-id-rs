@@ -8,6 +8,7 @@
 /// - Owned `AccountId` - when the caller already has ownership
 /// - `&AccountId`      - when the caller wants to keep their copy
 /// - `&AccountIdRef`   - when working with borrowed account ID references
+/// - `UniversalAccountId` and `&UniversalAccountId` - when the caller has a typed `0u` ID
 /// - `&str`            - when you have string slice that needs validation
 /// - Owned `String`    - when you have and owned string that needs validation
 ///
@@ -56,8 +57,8 @@
 pub trait TryIntoAccountId {
     /// Converts this type into an owned [`AccountId`](crate::AccountId).
     ///
-    /// For already-validated types (`AccountId`, `&AccountId`, `&AccountIdRef`),
-    /// this moves or clones the value without re-validation.
+    /// For already-validated types (`AccountId`, `&AccountId`, `&AccountIdRef`, and
+    /// `UniversalAccountId`), this moves or clones the value without re-validation.
     ///
     /// For string types (`&str`, `String`), this validates the format and
     /// returns an error if invalid.
@@ -78,6 +79,26 @@ impl TryIntoAccountId for crate::AccountId {
 
     fn as_str(&self) -> &str {
         self.as_ref()
+    }
+}
+
+impl TryIntoAccountId for crate::UniversalAccountId {
+    fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
+        Ok(self.into())
+    }
+
+    fn as_str(&self) -> &str {
+        crate::UniversalAccountId::as_str(self)
+    }
+}
+
+impl TryIntoAccountId for &crate::UniversalAccountId {
+    fn try_into_account_id(self) -> Result<crate::AccountId, crate::ParseAccountError> {
+        Ok(self.into())
+    }
+
+    fn as_str(&self) -> &str {
+        crate::UniversalAccountId::as_str(self)
     }
 }
 
@@ -156,6 +177,15 @@ mod tests {
         let result = accept_account(account);
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "bob.near");
+    }
+
+    #[test]
+    fn test_universal_account_id() {
+        let account = crate::UniversalAccountId::from_hash([0x5a; 32]);
+        let expected = account.as_str().to_owned();
+
+        assert_eq!(accept_account(&account).unwrap().as_str(), expected);
+        assert_eq!(accept_account(account).unwrap().as_str(), expected);
     }
 
     #[test]

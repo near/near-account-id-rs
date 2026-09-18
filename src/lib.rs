@@ -48,9 +48,11 @@ mod into_account_id;
 mod serde;
 #[cfg(test)]
 mod test_data;
+mod universal_account_id;
 mod validation;
 
 pub use account_id::AccountId;
 pub use account_id_ref::{AccountIdRef, AccountType};
 pub use errors::{ParseAccountError, ParseErrorKind};
 pub use into_account_id::TryIntoAccountId;
+pub use universal_account_id::{ParseUniversalAccountIdError, UniversalAccountId};

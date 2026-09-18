@@ -16,6 +16,22 @@ let alice: AccountId = "alice.near".parse()?;
 assert!("ƒelicia.near".parse::<AccountId>().is_err()); // (ƒ is not f)
 ```
 
+Universal account IDs can be handled with a more specific type that guarantees
+their `0u` encoding is canonical:
+
+```rust
+use near_account_id::UniversalAccountId;
+
+let hash = [0xff; 32];
+let account_id = UniversalAccountId::from_hash(hash);
+
+assert_eq!(
+    account_id.as_str(),
+    "0uzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzg"
+);
+assert_eq!(account_id.hash(), hash);
+```
+
 See the [docs](https://docs.rs/near-account-id) for more information.
 
 ## License
