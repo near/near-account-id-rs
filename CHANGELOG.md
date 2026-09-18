@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0](https://github.com/near/near-account-id-rs/compare/v3.0.0...v3.1.0) - 2026-09-18
+
+### Added
+
+- add typed universal account IDs ([#63](https://github.com/near/near-account-id-rs/pull/63))
+
+### Other
+
+- fix AccountId link in re-exports ([#64](https://github.com/near/near-account-id-rs/pull/64))
+
 ### Added
 
 - Add `UniversalAccountId`, a canonical typed representation of a `0u` account ID with hash encoding and decoding.
