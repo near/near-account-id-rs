@@ -29,7 +29,6 @@ assert_eq!(
     account_id.as_str(),
     "0uzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzg"
 );
-assert_eq!(account_id.hash(), hash);
 ```
 
 See the [docs](https://docs.rs/near-account-id) for more information.
