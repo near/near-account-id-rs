@@ -85,7 +85,6 @@ impl std::error::Error for ParseUniversalAccountIdError {}
 ///     account_id.as_str(),
 ///     "0uzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzg"
 /// );
-/// assert_eq!(account_id.hash(), hash);
 /// ```
 ///
 /// Parsing rejects strings that are valid generic account IDs but are not canonical
@@ -111,15 +110,11 @@ impl UniversalAccountId {
     pub const LEN: usize = Self::PREFIX.len() + DATA_SYMBOLS;
 
     /// Encodes a 32-byte hash as a canonical universal account ID.
+    ///
+    /// Same encoding as [`encode_universal_account_id`]. There is deliberately no way
+    /// to decode the hash back out: compare account IDs, not hashes.
     pub fn from_hash(hash: [u8; UNIVERSAL_HASH_LEN]) -> Self {
-        Self(CanonicalUniversalBody::from_hash(&hash).into_account_id())
-    }
-
-    /// Decodes the 32-byte hash represented by this universal account ID.
-    pub fn hash(&self) -> [u8; UNIVERSAL_HASH_LEN] {
-        CanonicalUniversalBody::parse(self.as_str())
-            .unwrap_or_else(|_| unreachable!("UniversalAccountId must remain canonical"))
-            .into_hash()
+        Self(encode_universal_account_id(&hash))
     }
 
     /// Returns this value as a generic account ID reference.
@@ -332,10 +327,34 @@ impl CanonicalUniversalBody {
             .parse()
             .unwrap_or_else(|_| unreachable!("canonical universal ID is a valid account ID"))
     }
+}
 
-    fn into_hash(self) -> [u8; UNIVERSAL_HASH_LEN] {
-        base32_decode(&self.symbols())
-    }
+/// Encodes a 32-byte hash as a `0u` universal account ID.
+///
+/// The result is `0u` followed by 52 lowercase Crockford base32 symbols of the hash,
+/// most-significant bit first, with the four trailing padding bits set to zero. This
+/// is the same encoding as nearcore's `encode_universal_account_id`, and the result
+/// is always classified as [`AccountType::UniversalAccount`](crate::AccountType::UniversalAccount).
+///
+/// The mapping from state init to account ID is one-way. To check whether an account ID
+/// belongs to a given state init, derive the ID from the state init bytes and compare
+/// account IDs, rather than extracting and comparing hashes.
+///
+/// # Examples
+///
+/// ```
+/// use near_account_id::{AccountType, encode_universal_account_id};
+///
+/// let account_id = encode_universal_account_id(&[0xff; 32]);
+///
+/// assert_eq!(
+///     account_id.as_str(),
+///     "0uzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzg"
+/// );
+/// assert_eq!(account_id.get_account_type(), AccountType::UniversalAccount);
+/// ```
+pub fn encode_universal_account_id(hash: &[u8; UNIVERSAL_HASH_LEN]) -> AccountId {
+    CanonicalUniversalBody::from_hash(hash).into_account_id()
 }
 
 pub(crate) fn is_universal_account_id(account_id: &str) -> bool {
@@ -365,31 +384,6 @@ fn base32_encode(hash: &[u8; UNIVERSAL_HASH_LEN]) -> [CrockfordSymbol; DATA_SYMB
     index += 1;
     debug_assert_eq!(index, DATA_SYMBOLS);
     debug_assert_eq!(bits, 1);
-    output
-}
-
-/// 52 canonical five-bit symbols to 32 bytes. The typed final symbol guarantees
-/// that the four leftover bits are zero.
-fn base32_decode(symbols: &[CrockfordSymbol; DATA_SYMBOLS]) -> [u8; UNIVERSAL_HASH_LEN] {
-    let mut output = [0u8; UNIVERSAL_HASH_LEN];
-    let mut accumulator = 0u32;
-    let mut bits = 0u32;
-    let mut index = 0;
-
-    for symbol in symbols {
-        accumulator = (accumulator << 5) | u32::from(symbol.0);
-        bits += 5;
-        while bits >= 8 {
-            bits -= 8;
-            output[index] = ((accumulator >> bits) & 0xff) as u8;
-            index += 1;
-            accumulator &= (1u32 << bits) - 1;
-        }
-    }
-
-    debug_assert_eq!(index, UNIVERSAL_HASH_LEN);
-    debug_assert_eq!(bits, 4);
-    debug_assert_eq!(accumulator, 0);
     output
 }
 
@@ -478,7 +472,6 @@ mod tests {
         for (hash, expected) in KNOWN_ANSWERS {
             let account_id = UniversalAccountId::from_hash(*hash);
             assert_eq!(account_id.as_str(), *expected);
-            assert_eq!(account_id.hash(), *hash);
             assert_eq!(expected.parse::<UniversalAccountId>().unwrap(), account_id);
         }
     }
@@ -491,7 +484,6 @@ mod tests {
                 *byte = seed.wrapping_add(index as u8).wrapping_mul(31);
             }
             let account_id = UniversalAccountId::from_hash(hash);
-            assert_eq!(account_id.hash(), hash);
             assert_eq!(
                 account_id.as_str().parse::<UniversalAccountId>().unwrap(),
                 account_id
@@ -528,6 +520,18 @@ mod tests {
     }
 
     #[test]
+    fn free_fn_matches_typed_encoder() {
+        for (hash, expected) in KNOWN_ANSWERS {
+            let account_id = encode_universal_account_id(hash);
+            assert_eq!(account_id.as_str(), *expected);
+            assert_eq!(
+                account_id,
+                UniversalAccountId::from_hash(*hash).into_account_id()
+            );
+        }
+    }
+
+    #[test]
     fn matches_nearcore_encoder() {
         let mut state: u64 = 0x9E37_79B9_7F4A_7C15;
         let mut hashes = vec![[0x00; UNIVERSAL_HASH_LEN], [0xff; UNIVERSAL_HASH_LEN]];
@@ -543,8 +547,20 @@ mod tests {
         }
         for hash in hashes {
             let expected = nearcore_encode(&hash);
-            assert_eq!(UniversalAccountId::from_hash(hash).as_str(), expected);
-            assert_eq!(expected.parse::<UniversalAccountId>().unwrap().hash(), hash);
+            let account_id = encode_universal_account_id(&hash);
+            assert_eq!(account_id.as_str(), expected);
+            assert_eq!(
+                account_id.get_account_type(),
+                crate::AccountType::UniversalAccount
+            );
+            assert_eq!(
+                UniversalAccountId::from_hash(hash).into_account_id(),
+                account_id
+            );
+            assert_eq!(
+                expected.parse::<UniversalAccountId>().unwrap().as_str(),
+                expected
+            );
         }
     }
 
@@ -554,7 +570,10 @@ mod tests {
             if let Ok(input) = std::str::from_utf8(input) {
                 if let Ok(account_id) = input.parse::<UniversalAccountId>() {
                     assert_eq!(account_id.as_str(), input);
-                    assert_eq!(UniversalAccountId::from_hash(account_id.hash()), account_id);
+                    assert_eq!(
+                        account_id.get_account_type(),
+                        crate::AccountType::UniversalAccount
+                    );
                 }
             }
         });

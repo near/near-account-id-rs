@@ -55,4 +55,6 @@ pub use account_id::AccountId;
 pub use account_id_ref::{AccountIdRef, AccountType};
 pub use errors::{ParseAccountError, ParseErrorKind};
 pub use into_account_id::TryIntoAccountId;
-pub use universal_account_id::{ParseUniversalAccountIdError, UniversalAccountId};
+pub use universal_account_id::{
+    ParseUniversalAccountIdError, UniversalAccountId, encode_universal_account_id,
+};
