@@ -338,6 +338,34 @@ impl CanonicalUniversalBody {
     }
 }
 
+/// Encodes a 32-byte hash as a `0u` universal account ID.
+///
+/// The result is `0u` followed by 52 lowercase Crockford base32 symbols of the hash,
+/// most-significant bit first, with the four trailing padding bits set to zero. This
+/// is the same encoding as nearcore's `encode_universal_account_id`, and the result
+/// is always classified as [`AccountType::UniversalAccount`](crate::AccountType::UniversalAccount).
+///
+/// The mapping from state init to account ID is one-way. To check whether an account ID
+/// belongs to a given state init, derive the ID from the state init bytes and compare
+/// account IDs, rather than extracting and comparing hashes.
+///
+/// # Examples
+///
+/// ```
+/// use near_account_id::{AccountType, encode_universal_account_id};
+///
+/// let account_id = encode_universal_account_id(&[0xff; 32]);
+///
+/// assert_eq!(
+///     account_id.as_str(),
+///     "0uzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzg"
+/// );
+/// assert_eq!(account_id.get_account_type(), AccountType::UniversalAccount);
+/// ```
+pub fn encode_universal_account_id(hash: &[u8; UNIVERSAL_HASH_LEN]) -> AccountId {
+    CanonicalUniversalBody::from_hash(hash).into_account_id()
+}
+
 pub(crate) fn is_universal_account_id(account_id: &str) -> bool {
     CanonicalUniversalBody::parse(account_id).is_ok()
 }
@@ -528,6 +556,18 @@ mod tests {
     }
 
     #[test]
+    fn free_fn_matches_typed_encoder() {
+        for (hash, expected) in KNOWN_ANSWERS {
+            let account_id = encode_universal_account_id(hash);
+            assert_eq!(account_id.as_str(), *expected);
+            assert_eq!(
+                account_id,
+                UniversalAccountId::from_hash(*hash).into_account_id()
+            );
+        }
+    }
+
+    #[test]
     fn matches_nearcore_encoder() {
         let mut state: u64 = 0x9E37_79B9_7F4A_7C15;
         let mut hashes = vec![[0x00; UNIVERSAL_HASH_LEN], [0xff; UNIVERSAL_HASH_LEN]];
@@ -543,7 +583,12 @@ mod tests {
         }
         for hash in hashes {
             let expected = nearcore_encode(&hash);
-            assert_eq!(UniversalAccountId::from_hash(hash).as_str(), expected);
+            let account_id = encode_universal_account_id(&hash);
+            assert_eq!(account_id.as_str(), expected);
+            assert_eq!(
+                account_id.get_account_type(),
+                crate::AccountType::UniversalAccount
+            );
             assert_eq!(expected.parse::<UniversalAccountId>().unwrap().hash(), hash);
         }
     }
