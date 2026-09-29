@@ -3,7 +3,11 @@ use core::iter;
 use arbitrary::{Arbitrary, Error, Result, Unstructured};
 use arbitrary_with::ArbitraryAs;
 
-use crate::{AccountId, AccountIdRef, AccountType, UniversalAccountId};
+use crate::validation::CROCKFORD;
+use crate::{AccountId, AccountIdRef, AccountType};
+
+/// Base32 symbols a universal account ID carries after its `0u` prefix.
+const NUM_UNIVERSAL_SYMBOLS: usize = 52;
 
 impl Arbitrary<'_> for AccountId {
     fn arbitrary(u: &mut Unstructured<'_>) -> Result<AccountId> {
@@ -34,21 +38,6 @@ impl Arbitrary<'_> for AccountId {
             }
             AccountType::UniversalAccount => ArbitraryUniversalAccountId::arbitrary_as(u),
         }
-    }
-}
-
-impl<'a> Arbitrary<'a> for UniversalAccountId {
-    #[inline]
-    fn arbitrary(u: &mut Unstructured<'a>) -> Result<Self> {
-        Ok(Self::from_hash(u.arbitrary()?))
-    }
-
-    #[inline]
-    fn size_hint(_depth: usize) -> (usize, Option<usize>) {
-        (
-            UniversalAccountId::HASH_LEN,
-            Some(UniversalAccountId::HASH_LEN),
-        )
     }
 }
 
@@ -166,15 +155,24 @@ pub struct ArbitraryUniversalAccountId;
 impl<'a> ArbitraryAs<'a, AccountId> for ArbitraryUniversalAccountId {
     #[inline]
     fn arbitrary_as(u: &mut Unstructured<'a>) -> Result<AccountId> {
-        Ok(u.arbitrary::<UniversalAccountId>()?.into())
+        let bytes = u.arbitrary::<[u8; NUM_UNIVERSAL_SYMBOLS]>()?;
+        let (padding, body) = bytes.split_last().unwrap_or_else(|| unreachable!());
+
+        let mut account_id = String::with_capacity(2 + NUM_UNIVERSAL_SYMBOLS);
+        account_id.push_str("0u");
+        for &byte in body {
+            account_id.push(CROCKFORD[(byte % 32) as usize] as char);
+        }
+        // The last symbol carries the four padding bits, which a canonical address
+        // leaves zero, so `0` and `g` are the only values it can take.
+        account_id.push(if padding % 2 == 0 { '0' } else { 'g' });
+
+        Ok(account_id.parse().unwrap_or_else(|_| unreachable!()))
     }
 
     #[inline]
     fn size_hint_as(_depth: usize) -> (usize, Option<usize>) {
-        (
-            UniversalAccountId::HASH_LEN,
-            Some(UniversalAccountId::HASH_LEN),
-        )
+        (NUM_UNIVERSAL_SYMBOLS, Some(NUM_UNIVERSAL_SYMBOLS))
     }
 }
 
