@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0](https://github.com/near/near-account-id-rs/compare/v3.1.0...v4.0.0) - 2026-09-29
+
+### Added
+
+- add encode_universal_account_id and remove UniversalAccountId::hash ([#68](https://github.com/near/near-account-id-rs/pull/68))
+
+### Other
+
+- remove UniversalAccountId ([#70](https://github.com/near/near-account-id-rs/pull/70))
+
 ## [3.1.0](https://github.com/near/near-account-id-rs/compare/v3.0.0...v3.1.0) - 2026-09-18
 
 ### Added
