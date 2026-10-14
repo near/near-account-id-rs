@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.1.0](https://github.com/near/near-account-id-rs/compare/v3.0.0...v3.1.0) - 2026-09-18
+## [3.2.0](https://github.com/near/near-account-id-rs/compare/v3.1.0...v3.2.0) - 2026-10-14
+
+3.1.0 is yanked. This release restores 3.0.0's public API and keeps the documentation fix from 3.1.0.
+
+### Removed
+
+- remove `UniversalAccountId` and `ParseUniversalAccountIdError`, including `from_hash`, `hash` and `encode_universal_account_id` ([#68](https://github.com/near/near-account-id-rs/pull/68), [#70](https://github.com/near/near-account-id-rs/pull/70)). `AccountType::UniversalAccount` classification is unchanged.
+
+### Changed
+
+- `ArbitraryUniversalAccountId` consumes 52 bytes of `Unstructured` input again, as in 3.0.0.
+
+## [3.1.0](https://github.com/near/near-account-id-rs/compare/v3.0.0...v3.1.0) - 2026-09-18 [YANKED]
 
 ### Added
 
